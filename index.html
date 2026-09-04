@@ -244,6 +244,7 @@ a{color:var(--ceramica-cl)}
   <button class="btn ghost" id="mute-title">🔊 Narração ligada</button>
   <p class="soft center" style="font-size:13px">Sem cadastro. Seis minutos.<br>A última ilha pede a sua voz.</p>
   <p class="foot">PRANA ARTE &amp; EQUILÍBRIO</p>
+  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 6</p>
 </div>
 
 <!-- CENA -->
@@ -934,8 +935,6 @@ function runLine(){
 
     var spoke = false, ended = false;
     function reallyFinish(){ if(ended) return; ended = true; clearTimeout(sc.t3); nextLine(); }
-    // trava de seguranca: aconteca o que acontecer, a fala nao segura o jogo
-    sc.t3 = setTimeout(function(){ try{ stopVoice(); }catch(e){} reallyFinish(); }, dur + 7000);
     function finishLine(){
       if(ended) return;
       // nunca troca a legenda com palavra escondida
@@ -964,14 +963,27 @@ function runLine(){
       revealTo(wi + 1); wi = shown;
     }, step);
 
-    // barra de ritmo + rede de segurança
+    // barra de ritmo
     var started = performance.now();
     (function tick(){
       var pr = Math.min(1, (performance.now() - started)/dur);
       barEl.style.width = (pr*100) + "%";
-      if(pr < 1){ sc.raf = requestAnimationFrame(tick); }
-      else if(muted || !window.speechSynthesis){ finishLine(); }
-      else { sc.t2 = setTimeout(finishLine, spoke ? 2400 : 1500); }
+      if(pr < 1) sc.raf = requestAnimationFrame(tick);
+    })();
+
+    // VIGIA: um só relógio decide quando a fala acabou.
+    // Nunca corta voz que ainda está falando; nunca deixa a cena parada.
+    var LIMITE = dur + 25000;
+    (function vigia(){
+      if(ended) return;
+      var passou = performance.now() - started;
+      var falando = false;
+      try{ falando = !!(window.speechSynthesis && window.speechSynthesis.speaking); }catch(e){}
+
+      if(falando && passou < LIMITE){ sc.t3 = setTimeout(vigia, 250); return; }  // deixa terminar
+      if(passou >= LIMITE){ try{ stopVoice(); }catch(e){} reallyFinish(); return; }  // socorro
+      if(passou < dur){ sc.t3 = setTimeout(vigia, 250); return; }                // legenda ainda correndo
+      finishLine();                                                             // acabou de verdade
     })();
   }, 150);
 }
