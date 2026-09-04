@@ -244,7 +244,7 @@ a{color:var(--ceramica-cl)}
   <button class="btn ghost" id="mute-title">🔊 Narração ligada</button>
   <p class="soft center" style="font-size:13px">Sem cadastro. Seis minutos.<br>A última ilha pede a sua voz.</p>
   <p class="foot">PRANA ARTE &amp; EQUILÍBRIO</p>
-  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 8</p>
+  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 9</p>
 </div>
 
 <!-- CENA -->
@@ -690,6 +690,8 @@ function log(msg){
 /* ================= DIAGNOSTICO ================= */
 function erroNaTela(onde, e){
   try{
+    if(window.console) console.error(onde, e);
+    if(!DEBUG) return;
     var d = document.getElementById("erro");
     if(!d){
       d = document.createElement("div"); d.id = "erro";
@@ -1348,6 +1350,12 @@ function canto3(){
 function clearTimers(){ for(var i=0;i<rTimers.length;i++){ clearTimeout(rTimers[i]); } rTimers=[]; }
 function later(fn,ms){ rTimers.push(setTimeout(fn,ms)); }
 function ping(){ pulseEl.classList.remove("go"); void pulseEl.offsetWidth; pulseEl.classList.add("go"); }
+/* ================= REMADA ================= */
+var BPMS = [100,140,66], COUNT = 4, KEEP = 8;
+var rIndex=0, rExpected=[], rHits=[], rArmed=false, rResults=[], rTimers=[];
+var pad = document.getElementById("pad"), padTxt = document.getElementById("pad-txt"),
+    padSub = document.getElementById("pad-sub"), pulseEl = document.getElementById("pulse"),
+    trackEl = document.getElementById("r-track");
 function startRound(){
   log("EXERCICIO tambor, rodada " + (rIndex+1));
   clearTimers(); ambience(0.03); cantos("hud-c2", 0, 0);
