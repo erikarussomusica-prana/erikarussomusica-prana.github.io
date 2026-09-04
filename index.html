@@ -850,7 +850,7 @@ function splash(){
 }
 
 /* ================= TELAS ================= */
-var SCREENS = ["s-title","s-scene","s-ritmo","s-hist","s-ouvido","s-voz","s-fim"];
+var SCREENS = ["s-title","s-scene","s-ritmo","s-hist","s-ouvido","s-mapa","s-voz","s-fim"];
 function show(id){
   for(var i=0;i<SCREENS.length;i++){ document.getElementById(SCREENS[i]).hidden = (SCREENS[i] !== id); }
   window.scrollTo(0,0);
@@ -879,7 +879,7 @@ function playScene(who, label, lines, after){
   runLine();
 }
 function clearLineTimers(){
-  clearTimeout(sc.t1); clearTimeout(sc.t2); cancelAnimationFrame(sc.raf); clearInterval(sc.words);
+  clearTimeout(sc.t1); clearTimeout(sc.t2); clearTimeout(sc.t3); cancelAnimationFrame(sc.raf); clearInterval(sc.words);
 }
 function wrapWords(html){
   var tmp = document.createElement("div");
@@ -933,7 +933,9 @@ function runLine(){
     sc.pending = function(){ return shown < ws.length; };
 
     var spoke = false, ended = false;
-    function reallyFinish(){ if(ended) return; ended = true; nextLine(); }
+    function reallyFinish(){ if(ended) return; ended = true; clearTimeout(sc.t3); nextLine(); }
+    // trava de seguranca: aconteca o que acontecer, a fala nao segura o jogo
+    sc.t3 = setTimeout(function(){ try{ stopVoice(); }catch(e){} reallyFinish(); }, dur + 7000);
     function finishLine(){
       if(ended) return;
       // nunca troca a legenda com palavra escondida
@@ -977,7 +979,7 @@ function nextLine(){
   clearLineTimers();
   sc.i++;
   if(sc.i < sc.lines.length){ runLine(); }
-  else { stopVoice(); barEl.style.width = "0%"; if(sc.after) sc.after(); }
+  else { stopVoice(); barEl.style.width = "0%"; if(sc.after){ try{ sc.after(); }catch(e){ if(window.console) console.error("cena", e); } } }
 }
 function skipLine(){
   if(sc.pending && sc.pending() && sc.showAll){ sc.showAll(); return; }  // 1º toque: revela a frase
