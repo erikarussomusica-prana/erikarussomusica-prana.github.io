@@ -12,6 +12,12 @@
          background: #faf9f7; overflow-x: hidden; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
+.pauta-wrap{margin:18px 0 20px;padding:14px 6px;border:1px solid var(--mar3);border-radius:2px;
+  background:linear-gradient(180deg,rgba(12,26,40,.55),rgba(6,16,26,.75))}
+.pauta{display:block;width:100%;height:auto}
+.pauta .nota{fill:#8C6A3A;stroke:#E5C06B;stroke-width:1.4;transition:fill .18s ease,stroke .18s ease}
+.pauta .nota.viva{fill:#E5C06B}
+.pauta .nota.certa{fill:#8FD8A0;stroke:#8FD8A0}
 </style>
 <title>O Canto de Ítaca</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,6 +309,40 @@ a{color:var(--ceramica-cl)}
   <p class="soft center" style="font-size:13px" id="o-hint">Escute as três.</p>
 </div>
 
+<!-- CALIPSO -->
+<div class="screen" id="s-mapa" hidden>
+  <div class="hud"><div class="cantos" id="hud-cm"></div><span class="eyebrow" id="m-round">O tear</span></div>
+  <h2 class="center" id="m-title">Cante o que está escrito</h2>
+  <div class="pauta-wrap">
+    <svg class="pauta" viewBox="0 0 320 150" role="img" aria-label="Pauta musical com três notas">
+      <g stroke="#E5C06B" stroke-width="1.3" opacity=".55">
+        <path d="M14 40h292M14 55h292M14 70h292M14 85h292M14 100h292"/>
+      </g>
+      <path d="M78 115h24" stroke="#E5C06B" stroke-width="1.3" opacity=".55"/>
+      <g id="m-notas">
+        <ellipse class="nota" data-i="0" cx="90"  cy="115" rx="9" ry="6.6" transform="rotate(-16 90 115)"/>
+        <ellipse class="nota" data-i="1" cx="165" cy="100" rx="9" ry="6.6" transform="rotate(-16 165 100)"/>
+        <ellipse class="nota" data-i="2" cx="240" cy="85"  rx="9" ry="6.6" transform="rotate(-16 240 85)"/>
+      </g>
+      <g stroke="#E5C06B" stroke-width="2" opacity=".8">
+        <path d="M98.4 113v-40M173.4 98v-40M248.4 83v-40"/>
+      </g>
+      <line id="m-cursor" x1="20" y1="26" x2="20" y2="126" stroke="#F2E4C4" stroke-width="2" opacity=".85"/>
+    </svg>
+  </div>
+  <div class="tuner">
+    <div class="big" id="m-big">— — —</div>
+    <div class="meter">
+      <div class="zone"></div><div class="mid"></div>
+      <div class="needle" id="m-needle"></div>
+      <span class="lbl l">GRAVE</span><span class="lbl r">AGUDO</span>
+    </div>
+    <p class="soft mono" style="font-size:11.5px;letter-spacing:.1em" id="m-status">A LINHA VAI ANDAR</p>
+  </div>
+  <button class="btn ghost" id="m-replay">Ouvir as três notas</button>
+  <button class="btn ghost" id="m-skip">Pular esta ilha</button>
+</div>
+
 <!-- SEREIAS -->
 <div class="screen" id="s-voz" hidden>
   <div class="hud"><div class="cantos" id="hud-c4"></div><span class="eyebrow" id="v-round">Resposta I</span></div>
@@ -329,6 +369,7 @@ a{color:var(--ceramica-cl)}
     <div class="srow"><span class="k">Remada · seu pulso</span><span class="v" id="sc-pulso">—</span></div>
     <div class="srow"><span class="k">Lira · sua história</span><span class="v" id="sc-hist">—</span></div>
     <div class="srow"><span class="k">Taça · seu ouvido</span><span class="v" id="sc-ouvido">—</span></div>
+    <div class="srow"><span class="k">Tear · sua leitura</span><span class="v" id="sc-mapa">—</span></div>
     <div class="srow"><span class="k">Resposta · sua voz</span><span class="v" id="sc-voz">—</span></div>
   </div>
   <div class="verdict"><span class="t" id="f-title">—</span><p id="f-text"></p></div>
@@ -592,8 +633,37 @@ var PAPEL = {
   musa:    "guardiã do canto",
   remador: "contramestre do navio",
   hermes:  "inventor da lira · ladrão",
-  circe:   "feiticeira da ilha de Eeia",
-  sereia:  "as vozes do estreito"
+  calipso:
+'<svg '+VB+' role="img" aria-label="Calipso diante de um tear de linhas horizontais, tecendo">'+ CHAO +
+/* tear */
+'<g transform="translate(58 96)">'+
+  '<rect x="-4" y="-6" width="8" height="228" rx="3" fill="#8C4E28"/>'+
+  '<rect x="176" y="-6" width="8" height="228" rx="3" fill="#8C4E28"/>'+
+  '<g stroke="#E5C06B" stroke-width="2.2" opacity=".72">'+
+    '<path d="M2 26h174M2 60h174M2 94h174M2 128h174M2 162h174"/>'+
+  '</g>'+
+  '<g stroke="#D08248" stroke-width="1.2" opacity=".38">'+
+    '<path d="M34 -2v212M76 -2v212M118 -2v212M160 -2v212"/>'+
+  '</g>'+
+  '<circle cx="150" cy="60" r="5" fill="#E5C06B" class="an-glow"/>'+
+'</g>'+
+'<g class="an-breathe">'+
+  /* vestido */
+  '<path d="M196 126c-17 0-27 10-31 25l-26 165c-2 8 3 12 10 12h94c7 0 12-4 10-12l-26-165c-4-15-14-25-31-25z" fill="#D08248"/>'+
+  '<g stroke="#3B1E0F" stroke-width="1.5" fill="none" opacity=".45"><path d="M196 162v158M174 196l-12 118M218 196l12 118"/></g>'+
+  /* braco que tece */
+  '<g class="an-armL"><path d="M170 142c-26 10-44 24-52 40-4 8 9 14 13 6 7-13 22-24 41-30z" fill="#D08248"/></g>'+
+  '<g class="an-armR"><path d="M222 142c14 8 23 20 26 34 2 8-11 11-13 3-3-11-9-19-19-24z" fill="#D08248"/></g>'+
+  /* cabeca e cabelo */
+  '<path d="M196 66c-17 0-29 13-29 30 0 18 12 32 29 32s29-14 29-32c0-17-12-30-29-30z" fill="#D08248"/>'+
+  '<path d="M167 92c-4-24 9-40 29-40s33 16 29 40c-3-14-13-22-29-22s-26 8-29 22z" fill="#3B1E0F" opacity=".82"/>'+
+  '<path d="M170 96c-8 22-6 44 2 62-14-16-18-42-2-62zM222 96c8 22 6 44-2 62 14-16 18-42 2-62z" fill="#3B1E0F" opacity=".62"/>'+
+'</g>'+
+'</svg>',
+  calipso: "a que esconde · tecelã do mapa",
+  circe:   "filha do Sol · conhecedora das ervas",
+  sereia:  "as vozes do estreito",
+  penelope:"rainha de Ítaca"
 };
 
 /* ================= NARRAÇÃO ================= */
@@ -620,8 +690,10 @@ var VOZ = {
   musa:    { rate:0.98, pitch:1.00, g:"f" },
   remador: { rate:1.00, pitch:0.62, g:"m" },
   hermes:  { rate:1.14, pitch:0.90, g:"m" },
+  calipso: { rate:0.95, pitch:0.98, g:"f" },
   circe:   { rate:0.92, pitch:1.06, g:"f" },
-  sereia:  { rate:0.88, pitch:1.12, g:"f" }
+  sereia:  { rate:0.88, pitch:1.12, g:"f" },
+  penelope:{ rate:0.94, pitch:1.02, g:"f" }
 };
 function stopVoice(){ if(window.speechSynthesis){ window.speechSynthesis.cancel(); } }
 function cleanText(t){ return t.replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim(); }
@@ -922,11 +994,18 @@ function prologo(){
   playScene("musa","A MUSA",[
     "<i>Canta-me, ó Musa, o varão que astucioso...</i>",
     "Assim começa o poema mais antigo que ainda se lê. Repara na primeira palavra: <em>canta</em>.",
-    "Sou eu quem canta. Sempre fui. Mas hoje eu preciso de alguém com pulmão.",
-    "Troia caiu há dez anos. Odisseu quer voltar pra casa e o navio dele parou de andar.",
-    "Não foi tempestade. A tripulação <em>perdeu o canto</em> — e navio sem canto não acha o caminho.",
-    "Quatro ilhas guardam os pedaços. Traga os quatro e Ítaca aparece no horizonte.",
+    "Eu sou filha da <em>Memória</em>. Antes de existir papel, existia eu.",
+    "Tudo o que a humanidade descobriu sobre o som, alguém teve que guardar na cabeça. Fui eu. Você tem ideia do trabalho que dá?",
+    "Tem um homem tentando voltar pra casa. Ele acha que a viagem é pelo mar.",
+    "Não é. A viagem é esta aqui — e quem vai fazer é você.",
     "Você não precisa saber música. Precisa querer chegar em casa."
+  ], travessia1);
+}
+function travessia1(){
+  playScene("musa","A MUSA",[
+    "No começo não tinha nota. Não tinha nome, não tinha papel, não tinha nada.",
+    "Tinha <em>batida</em>. Palma, pé no chão, pedra numa pedra, couro esticado.",
+    "Todo povo que existiu no mundo começou pelo mesmo lugar: batendo."
   ], canto1);
 }
 function canto1(){
@@ -950,6 +1029,15 @@ function fimCanto1(){
     "Nós vamos chegar em Ítaca. Velhos, mas vamos.",
     "Não faz essa cara. Pulso é a única coisa em música que <em>todo mundo</em> constrói.",
     "Só não se constrói sozinho. Anda, que tem alguém te esperando na praia."
+  ], travessia2);
+}
+function travessia2(){
+  playScene("musa","A MUSA",[
+    "Por milhares de anos foi assim: a música só existia enquanto alguém lembrasse dela.",
+    "Morreu quem sabia, <em>morreu a canção</em>.",
+    "Até que um sujeito chamado Guido cansou. Desenhou linhas numa página e pendurou bolinhas nelas.",
+    "Deu nome a cada som — tirou os nomes das sílabas de uma canção que todo mundo já sabia de cor.",
+    "A partir dali, a música passou a durar mais que a gente."
   ], cantoHermes);
 }
 function cantoHermes(){
@@ -1008,22 +1096,31 @@ function fimHermes(){
     "Você acertou " + hRight + " de três. Isso me irrita profundamente.",
     "Toma a erva. E toma o pedaço do canto, mesmo você sendo chato.",
     "Conselho de graça, e eu nunca dou nada de graça: <em>saber de onde a música veio muda como você escuta ela</em>.",
-    "A próxima é Circe. Ela transforma homem em porco e nota em outra nota."
+    "A próxima é Circe. Filha do Sol, conhece toda erva que existe. Não chega lá sem bater na porta."
   ] : [
     "Você acertou " + hRight + " de três. Eu vivo disso, não leve a mal.",
     "Toma a erva assim mesmo. Eu minto, mas não sou cruel.",
     "E guarda isto: <em>ninguém nasce sabendo a história da própria arte</em>. Nem eu, e eu estava lá.",
-    "A próxima é Circe. Ela transforma homem em porco e nota em outra nota."
+    "A próxima é Circe. Filha do Sol, conhece toda erva que existe. Não chega lá sem bater na porta."
+  ], travessia3);
+}
+function travessia3(){
+  playScene("musa","A MUSA",[
+    "Repara numa coisa: o som é contínuo, não tem degrau nenhum.",
+    "Foi a gente que cortou o som em pedaços — e <em>cada povo cortou do seu jeito</em>.",
+    "Aqui no Ocidente ficaram doze pedaços. Na Índia, o ouvido treinado escuta bem mais que isso.",
+    "E tem um corte de cinco notas que apareceu sozinho na China, na África, na Escócia e no blues — sem ninguém combinar com ninguém.",
+    "Quando a humanidade inteira chega no mesmo lugar por conta própria, é sinal de que aquilo já estava na gente."
   ], canto2);
 }
 function canto2(){
   playScene("circe","CIRCE",[
-    "Bem-vindo à minha ilha. Todo mundo entra. Poucos saem inteiros.",
-    "Eu transformo coisas. Homens em porcos, principalmente. Mas hoje estou entediada.",
-    "Hoje eu transformo <em>notas</em>. Vou tocar três iguais e mexer em uma delas.",
-    "Para ser justa, deixo uma <em>nota parada embaixo</em>, segurando tudo.",
-    "A que eu mexer vai <em>brigar</em> com ela. Você vai ouvir a briga — é um tremido, uma pulsação.",
-    "Me diga qual delas treme. E eu vou mexendo cada vez menos."
+    "Meu pai é o <em>Sol</em>. Eu conheço cada erva que nasce nesta ilha e sei exatamente o que cada uma faz.",
+    "Aqueles homens entraram aqui sem bater na porta, armados. O que eles viraram depois disso, eu considero escolha deles.",
+    "Com você é diferente. Você bateu na porta — então você vai <em>aprender</em>.",
+    "Vou segurar um som embaixo, parado, segurando tudo. E vou soltar outro por cima.",
+    "Quando os dois brigam, tem uma coisa que <em>treme</em> no meio.",
+    "Sua tarefa é ouvir esse tremor. E eu vou mexendo cada vez menos."
   ], function(){ oIndex=0; oBest=null; show("s-ouvido"); setTimeout(startEar, 480); });
 }
 function fimCanto2(){
@@ -1031,33 +1128,160 @@ function fimCanto2(){
   var bom = (ouvidoScore !== null && ouvidoScore <= 35);
   playScene("circe","CIRCE", bom ? [
     "Que <em>pena</em>. Eu ia gostar de te ter por perto.",
-    "Você escuta o que quase ninguém escuta. Leve seu pedaço do canto e suma da minha ilha.",
-    "Mas escute um aviso, já que fui derrotada com elegância: a próxima ilha é das <em>Sereias</em>.",
-    "Todo mundo que passou por elas fez a mesma coisa: tapou o ouvido. Você vai fazer diferente."
+    "Você escuta o que quase ninguém escuta. Leve seu pedaço do canto.",
+    "E guarda isto antes de ir: <em>sou eu quem desenha o resto da sua viagem</em>.",
+    "Contaram essa história como se ele tivesse escapado sozinho. Ele escapou porque <em>anotou</em> o que eu disse.",
+    "A próxima ilha é de Calipso. Ela vai te mostrar como se anota."
   ] : [
-    "Não se preocupe, querido. A lama é morna.",
+    "Não se preocupe. A lama é morna.",
     "Brincadeira. Ouvido não é dom, é treino — e é o que mais muda em três meses de aula. Eu já vi acontecer.",
-    "Vai. A próxima é das Sereias, e lá não adianta apontar o dedo.",
-    "Lá você vai ter que <em>cantar</em>."
+    "Guarda isto: <em>sou eu quem desenha o resto da sua viagem</em>. Sem o que eu digo, ninguém passa das Sereias.",
+    "A próxima ilha é de Calipso. Lá você aprende a anotar o que ouviu."
+  ], calipso);
+}
+function travessia4(){
+  playScene("musa","A MUSA",[
+    "Antes do tambor. Antes da flauta de osso que enterraram há quarenta mil anos.",
+    "Antes de qualquer coisa que precisasse ser construída, já existia um instrumento.",
+    "Ele veio junto com a gente, de fábrica. Ninguém precisou inventar.",
+    "É a única coisa desta viagem que você já tinha <em>antes de começar</em>."
   ], canto3);
 }
+/* ================= CALIPSO / O MAPA ================= */
+var MAPA = [{x:90,f:261.63,nome:"DÓ"},{x:165,f:329.63,nome:"MI"},{x:240,f:392.00,nome:"SOL"}];
+var mapaScore=null, mStream=null, mAnalyser=null, mBuf=null, mRaf=0, mT0=0, mHold=[0,0,0], mOk=[0,0,0], mDone=false;
+var M_INI=20, M_FIM=300, M_DUR=10000, M_JANELA=24;
+
+function calipso(){
+  playScene("calipso","CALIPSO",[
+    "Calipso. Meu nome quer dizer <em>a que esconde</em>.",
+    "Aquele homem passou sete anos aqui. Eu ofereci a vida sem fim, a juventude sem fim...",
+    "...e ele ficava sentado na pedra olhando o mar, chorando de saudade de uma ilha cheia de cabra.",
+    "Sete anos. <em>Sete.</em> Uma para cada nota. Ele não aprendeu nenhuma.",
+    "Olha o meu tear: linhas deitadas, uma em cima da outra. A partitura é a mesma coisa — um tecido.",
+    "Para cima e para baixo é a <em>altura</em>: que nota é. Da esquerda para a direita é o <em>tempo</em>: quando ela chega.",
+    "Você aprendeu as duas separadas, com o soldado e com a filha do Sol. Aqui elas se encontram.",
+    "Isto não é matéria de escola. É o <em>mapa</em>."
+  ], startMapa);
+}
+
+function pintaNotas(){
+  var ns = document.querySelectorAll("#m-notas .nota");
+  for(var i=0;i<ns.length;i++){
+    ns[i].className.baseVal = "nota" + (mOk[i] ? " certa" : "");
+  }
+}
+function tocaMapa(){
+  var c = audio(), t = c.currentTime + 0.15;
+  for(var i=0;i<MAPA.length;i++){ soft(t + i*0.75, MAPA[i].f, 0.6, 0.16, "sine"); }
+}
+function startMapa(){
+  var c = audio();
+  cantos("hud-cm", 3, 3);
+  mIndexReset();
+  show("s-mapa");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ mapaScore=null; fimCalipso(); return; }
+  navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})
+  .then(function(stream){
+    mStream = stream;
+    var src = c.createMediaStreamSource(stream);
+    mAnalyser = c.createAnalyser(); mAnalyser.fftSize = 2048;
+    mBuf = new Float32Array(mAnalyser.fftSize);
+    src.connect(mAnalyser);
+    document.getElementById("m-status").textContent = "OUÇA AS TRÊS";
+    tocaMapa();
+    setTimeout(function(){
+      if(mDone) return;
+      document.getElementById("m-status").textContent = "AGORA CANTE CADA UMA";
+      mT0 = performance.now();
+      mRaf = requestAnimationFrame(mapaLoop);
+    }, 2900);
+  })
+  .catch(function(){ mapaScore=null; fimCalipso(); });
+}
+function mIndexReset(){
+  mHold=[0,0,0]; mOk=[0,0,0]; mDone=false;
+  document.getElementById("m-big").textContent = "— — —";
+  document.getElementById("m-needle").style.left = "50%";
+  document.getElementById("m-cursor").setAttribute("x1", M_INI);
+  document.getElementById("m-cursor").setAttribute("x2", M_INI);
+  pintaNotas();
+}
+function stopMapaMic(){
+  mDone = true; cancelAnimationFrame(mRaf);
+  if(mStream){ var t=mStream.getTracks(); for(var i=0;i<t.length;i++){ t[i].stop(); } mStream=null; }
+}
+function mapaLoop(){
+  if(mDone) return;
+  var now = performance.now(), dt = now - mT0;
+  var prog = Math.min(1, dt / M_DUR);
+  var x = M_INI + (M_FIM - M_INI) * prog;
+  var cur = document.getElementById("m-cursor");
+  cur.setAttribute("x1", x); cur.setAttribute("x2", x);
+
+  mAnalyser.getFloatTimeDomainData(mBuf);
+  var f = autoCorrelate(mBuf, audio().sampleRate);
+  var alvo = -1;
+  for(var i=0;i<MAPA.length;i++){ if(Math.abs(x - MAPA[i].x) < M_JANELA){ alvo = i; break; } }
+
+  var ns = document.querySelectorAll("#m-notas .nota");
+  for(var k=0;k<ns.length;k++){
+    if(!mOk[k]) ns[k].className.baseVal = "nota" + (k===alvo ? " viva" : "");
+  }
+
+  if(alvo >= 0 && f > 0){
+    var cents = centsFrom(f, MAPA[alvo].f);
+    document.getElementById("m-big").textContent = MAPA[alvo].nome;
+    document.getElementById("m-needle").style.left = Math.max(2, Math.min(98, 50 + cents/2)) + "%";
+    if(Math.abs(cents) < 70){
+      mHold[alvo] += 16;
+      if(mHold[alvo] > 220 && !mOk[alvo]){ mOk[alvo] = 1; pintaNotas(); soft(audio().currentTime, MAPA[alvo].f*2, 0.35, 0.13, "sine"); }
+    }
+  } else if(alvo < 0){
+    document.getElementById("m-big").textContent = "— — —";
+    document.getElementById("m-needle").style.left = "50%";
+  }
+
+  if(prog >= 1){
+    var n = mOk[0] + mOk[1] + mOk[2];
+    mapaScore = n;
+    stopMapaMic();
+    setTimeout(fimCalipso, 900);
+    return;
+  }
+  mRaf = requestAnimationFrame(mapaLoop);
+}
+function fimCalipso(){
+  stopMapaMic();
+  progress = 4;
+  var n = (mapaScore === null) ? -1 : mapaScore;
+  playScene("calipso","CALIPSO", (n >= 2) ? [
+    "Você leu. Não adivinhou, não decorou: <em>leu</em>.",
+    "Tudo o que está escrito em qualquer papel de música do mundo funciona assim. Altura e tempo, só isso.",
+    "Sete anos eu tentei com aquele homem. Você levou dez segundos.",
+    "Leva o mapa. A próxima ilha é das Sereias, e lá não tem papel nenhum."
+  ] : (n >= 0) ? [
+    "Quase. E “quase” na primeira vez que se lê uma pauta já é muita coisa.",
+    "Ninguém lê partitura de primeira, do mesmo jeito que ninguém leu palavra de primeira.",
+    "É tudo questão de olhar muitas vezes até parar de traduzir. Acontece com todo mundo, e acontece rápido.",
+    "Leva o mapa assim mesmo. A próxima ilha é das Sereias."
+  ] : [
+    "Sem microfone eu não consigo te ouvir — e sem ouvir eu não ensino.",
+    "Fica com o mapa mesmo assim: para cima é mais agudo, para a direita é mais tarde.",
+    "Isso sozinho já é metade da leitura. A próxima ilha é das Sereias."
+  ], travessia4);
+}
+
 function canto3(){
   playScene("sereia","AS SEREIAS",[
-    "Ele mandou tapar o ouvido de todos os homens. E se amarrou no mastro só para escutar.",
-    "É o que fazem sempre. Se amarram, tapam os ouvidos, remam mais rápido.",
-    "<em>Ninguém nunca responde.</em>",
-    "Você vai responder. Eu canto uma nota. Você canta a mesma.",
-    "Se a sua voz encontrar a minha e <em>ficar lá</em>, o mar abre. Se fugir, você rema para sempre.",
+    "Dizem por aí que a gente seduz marinheiro. Que <em>preguiça</em>.",
+    "Ninguém amarra o próprio corpo num mastro por causa de rosto bonito.",
+    "O que a gente oferece é outra coisa: <em>tudo o que já aconteceu no mundo</em>.",
+    "Tudo o que alguém soube, cantado, aqui, agora. Ele se amarrou porque não ia aguentar querer tanto.",
+    "Com você não precisa corda nenhuma. Eu canto uma nota, você canta a mesma.",
     "Não precisa ser bonito. Precisa ser <em>afinado</em>. São coisas diferentes, e só uma delas eu cobro."
   ], startMic);
 }
-
-/* ================= REMADA ================= */
-var BPMS = [100,140,66], COUNT = 4, KEEP = 8;
-var rIndex=0, rExpected=[], rHits=[], rArmed=false, rResults=[], rTimers=[];
-var pad = document.getElementById("pad"), padTxt = document.getElementById("pad-txt"),
-    padSub = document.getElementById("pad-sub"), pulseEl = document.getElementById("pulse"),
-    trackEl = document.getElementById("r-track");
 function clearTimers(){ for(var i=0;i<rTimers.length;i++){ clearTimeout(rTimers[i]); } rTimers=[]; }
 function later(fn,ms){ rTimers.push(setTimeout(fn,ms)); }
 function ping(){ pulseEl.classList.remove("go"); void pulseEl.offsetWidth; pulseEl.classList.add("go"); }
@@ -1319,6 +1543,7 @@ function finish(){
   document.getElementById("sc-pulso").innerHTML = (p===null) ? "não medido" : (Math.round(p) + '<small>ms</small>');
   document.getElementById("sc-hist").innerHTML = (histScore===null) ? "não jogada" : (histScore + '<small>de 3</small>');
   document.getElementById("sc-ouvido").innerHTML = (ouvidoScore===null) ? "nenhuma" : (ouvidoScore + '<small>cents</small>');
+  document.getElementById("sc-mapa").innerHTML = (mapaScore===null) ? "sem microfone" : (mapaScore + '<small>de 3 notas</small>');
   document.getElementById("sc-voz").innerHTML = (vozScore===null) ? "não medida" : (Math.round(vozScore) + '<small>cents de erro</small>');
   var gp = (p!==null && p<130), ge = (ouvidoScore!==null && ouvidoScore<=35), gv = (vozScore!==null && vozScore<=20);
   var title, text;
@@ -1340,7 +1565,7 @@ function finish(){
   }
   document.getElementById("f-title").textContent = title;
   document.getElementById("f-text").textContent = text;
-  var msg = "Atravessei quatro ilhas em O Canto de Ítaca. Remada: " + (p===null?"—":Math.round(p)+"ms") +
+  var msg = "Atravessei cinco ilhas em O Canto de Ítaca. Remada: " + (p===null?"—":Math.round(p)+"ms") +
             ". Voz: " + (vozScore===null?"—":Math.round(vozScore)+" cents") + ". Duvido que você passe das Sereias.";
   document.getElementById("share").onclick = function(){
     window.open("https://wa.me/?text=" + encodeURIComponent(msg + " "), "_blank");
