@@ -244,7 +244,7 @@ a{color:var(--ceramica-cl)}
   <button class="btn ghost" id="mute-title">🔊 Narração ligada</button>
   <p class="soft center" style="font-size:13px">Sem cadastro. Seis minutos.<br>A última ilha pede a sua voz.</p>
   <p class="foot">PRANA ARTE &amp; EQUILÍBRIO</p>
-  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 7</p>
+  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 8</p>
 </div>
 
 <!-- CENA -->
@@ -667,6 +667,26 @@ var PAPEL = {
   penelope:"rainha de Ítaca"
 };
 
+/* ================= MODO DIAGNOSTICO (?debug=1) ================= */
+var DEBUG = (location.search.indexOf("debug=1") >= 0);
+var _logN = 0;
+function log(msg){
+  if(!DEBUG) return;
+  try{
+    var d = document.getElementById("dbg");
+    if(!d){
+      d = document.createElement("div"); d.id = "dbg";
+      d.style.cssText = "position:fixed;left:0;right:0;top:0;z-index:99999;background:rgba(0,0,0,.88);"+
+        "color:#8FD8A0;font:10px/1.35 monospace;padding:6px 8px;max-height:46vh;overflow:auto;white-space:pre-wrap";
+      d.addEventListener("click", function(){ d.style.display="none"; });
+      document.body.appendChild(d);
+    }
+    _logN++;
+    d.textContent += _logN + ". " + msg + String.fromCharCode(10);
+    d.scrollTop = d.scrollHeight;
+  }catch(x){}
+}
+
 /* ================= DIAGNOSTICO ================= */
 function erroNaTela(onde, e){
   try{
@@ -718,6 +738,7 @@ var VOZ = {
 function stopVoice(){ if(window.speechSynthesis){ window.speechSynthesis.cancel(); } }
 function cleanText(t){ return t.replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim(); }
 function narrate(text, who, opts){
+  log("    voz: " + (muted ? "MUDA" : (window.speechSynthesis ? "ok" : "SEM SUPORTE")));
   opts = opts || {};
   var clean = cleanText(text);
   if(muted || !window.speechSynthesis){ if(opts.onEnd) opts.onEnd(false); return; }
@@ -889,6 +910,7 @@ var subEl = document.getElementById("sub"), barEl = document.getElementById("sub
     actorEl = document.getElementById("actor"), nmEl = document.getElementById("nm"), rlEl = document.getElementById("rl");
 
 function playScene(who, label, lines, after){
+  log("CENA " + label + " (" + lines.length + " falas)");
   sc.lines = lines; sc.i = 0; sc.who = who; sc.after = after;
   nmEl.textContent = label;
   rlEl.textContent = PAPEL[who] || "";
@@ -928,6 +950,7 @@ function wrapWords(html){
   return tmp.innerHTML;
 }
 function runLine(){
+  log("  fala " + (sc.i+1) + "/" + sc.lines.length);
   clearLineTimers();
   var raw = sc.lines[sc.i];
   var clean = cleanText(raw);
@@ -1009,10 +1032,11 @@ function runLine(){
   }, 150);
 }
 function nextLine(){
+  log("  -> avancou da fala " + (sc.i+1));
   clearLineTimers();
   sc.i++;
   if(sc.i < sc.lines.length){ runLine(); }
-  else { stopVoice(); barEl.style.width = "0%"; if(sc.after){ try{ sc.after(); }catch(e){ if(window.console) console.error("cena", e); } } }
+  else { stopVoice(); barEl.style.width = "0%"; log("  FIM DA CENA -> after"); if(sc.after){ try{ sc.after(); }catch(e){ erroNaTela("after", e); } } }
 }
 function skipLine(){
   if(sc.pending && sc.pending() && sc.showAll){ sc.showAll(); return; }  // 1º toque: revela a frase
@@ -1325,6 +1349,7 @@ function clearTimers(){ for(var i=0;i<rTimers.length;i++){ clearTimeout(rTimers[
 function later(fn,ms){ rTimers.push(setTimeout(fn,ms)); }
 function ping(){ pulseEl.classList.remove("go"); void pulseEl.offsetWidth; pulseEl.classList.add("go"); }
 function startRound(){
+  log("EXERCICIO tambor, rodada " + (rIndex+1));
   clearTimers(); ambience(0.03); cantos("hud-c2", 0, 0);
   var bpm = BPMS[rIndex], beat = 60/bpm;
   rHits=[]; rExpected=[]; rArmed=false;
