@@ -244,7 +244,7 @@ a{color:var(--ceramica-cl)}
   <button class="btn ghost" id="mute-title">🔊 Narração ligada</button>
   <p class="soft center" style="font-size:13px">Sem cadastro. Seis minutos.<br>A última ilha pede a sua voz.</p>
   <p class="foot">PRANA ARTE &amp; EQUILÍBRIO</p>
-  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 6</p>
+  <p class="soft center" style="font-size:11px;letter-spacing:.14em;opacity:.4">VERSÃO 7</p>
 </div>
 
 <!-- CENA -->
@@ -667,6 +667,25 @@ var PAPEL = {
   penelope:"rainha de Ítaca"
 };
 
+/* ================= DIAGNOSTICO ================= */
+function erroNaTela(onde, e){
+  try{
+    var d = document.getElementById("erro");
+    if(!d){
+      d = document.createElement("div"); d.id = "erro";
+      d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#7a1f1f;color:#fff;"+
+        "font:11px/1.4 monospace;padding:8px 10px;max-height:38vh;overflow:auto;white-space:pre-wrap";
+      d.addEventListener("click", function(){ d.style.display = "none"; });
+      document.body.appendChild(d);
+    }
+    d.style.display = "block";
+    d.textContent += "[" + onde + "] " + (e && e.message ? e.message : e) + String.fromCharCode(10);
+  }catch(x){}
+}
+window.addEventListener("error", function(ev){
+  erroNaTela("js", ev.message + " (linha " + ev.lineno + ")");
+});
+
 /* ================= NARRAÇÃO ================= */
 var muted = false, VOICES = { f:null, m:null, any:null };
 var RE_F = /(maria|luciana|francisca|fernanda|camila|vit[oó]ria|joana|catarina|helena|in[eê]s|lidia|l[ií]dia|female|feminin|woman|mulher)/i;
@@ -874,9 +893,11 @@ function playScene(who, label, lines, after){
   nmEl.textContent = label;
   rlEl.textContent = PAPEL[who] || "";
   actorEl.innerHTML = ART[who] || "";
-  cantos("hud-cantos", progress, progress);
+  try{ cantos("hud-cantos", progress, progress); }catch(e){ erroNaTela("cantos", e); }
   show("s-scene");
-  ambience(0.085); stinger(who);
+  // som nunca pode impedir a fala de aparecer
+  try{ ambience(0.085); }catch(e){ erroNaTela("ambience", e); }
+  try{ stinger(who); }catch(e){ erroNaTela("stinger:"+who, e); }
   runLine();
 }
 function clearLineTimers(){
@@ -1025,12 +1046,14 @@ function travessia1(){
 function canto1(){
   progress = 0;
   playScene("remador","EURÍLOCO",[
+    "Eu sou <em>Euríloco</em>. Sou o cara que avisou.",
+    "Avisei sobre a ilha. Avisei sobre o gado. Avisei sobre tudo. Ninguém ouviu, e olha no que deu.",
     "Então você é o remador novo. Senta e escuta, que eu não repito.",
     "Cinquenta homens, cinquenta remos, <em>um tambor só</em>.",
     "Se um único braço sai do tempo, o navio anda em círculo.",
     "Eu bato quatro vezes. Depois eu paro, e você continua sozinho, mais oito.",
     "Todo mundo acha que consegue. O mar discorda de todo mundo."
-  ], function(){ rIndex=0; rResults=[]; show("s-ritmo"); setTimeout(startRound, 520); });
+  ], function(){ rIndex=0; rResults=[]; show("s-ritmo"); setTimeout(function(){ try{ startRound(); }catch(e){ erroNaTela("startRound", e); } }, 520); });
 }
 function fimCanto1(){
   progress = 1;
@@ -1056,7 +1079,9 @@ function travessia2(){
 }
 function cantoHermes(){
   playScene("hermes","HERMES",[
-    "Sandália alada, sorriso bonito, péssima reputação. Sou Hermes.",
+    "<em>Hermes.</em> Eu levo recado, levo gente, e de vez em quando levo vantagem.",
+    "Sandália alada, sorriso bonito, péssima reputação.",
+    "Sei todas as histórias que já contaram sobre música. Metade é verdade, e a outra metade alguém inventou.",
     "Vim te dar uma erva que protege da feiticeira da próxima ilha. É de graça. <em>Quase.</em>",
     "Detalhe que ninguém conta: no dia em que eu nasci, achei uma tartaruga e esvaziei o casco.",
     "Estiquei cordas nele e inventei a lira. Depois vendi pro Apolo por um rebanho de bois inteiro.",
@@ -1135,7 +1160,7 @@ function canto2(){
     "Vou segurar um som embaixo, parado, segurando tudo. E vou soltar outro por cima.",
     "Quando os dois brigam, tem uma coisa que <em>treme</em> no meio.",
     "Sua tarefa é ouvir esse tremor. E eu vou mexendo cada vez menos."
-  ], function(){ oIndex=0; oBest=null; show("s-ouvido"); setTimeout(startEar, 480); });
+  ], function(){ oIndex=0; oBest=null; show("s-ouvido"); setTimeout(function(){ try{ startEar(); }catch(e){ erroNaTela("startEar", e); } }, 480); });
 }
 function fimCanto2(){
   progress = 3;
