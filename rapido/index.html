@@ -9,160 +9,170 @@
 <title>Ítaca</title>
 <style>
   :root{
-    --fundo:#08070F; --fundo2:#100D1F;
-    --ciano:#25E8C8; --magenta:#FF4D8D; --ouro:#FFD166;
-    --branco:#FFFFFF; --fraco:rgba(255,255,255,.55); --fraquissimo:rgba(255,255,255,.28);
+    --fundo:#08070F; --ciano:#25E8C8; --magenta:#FF4D8D; --ouro:#FFD166;
+    --branco:#FFF; --fraco:rgba(255,255,255,.55); --fraquissimo:rgba(255,255,255,.3);
   }
   *,*::before,*::after{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0;background:var(--fundo);color:var(--branco);
-    font:16px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif;
+  body{margin:0;background:var(--fundo);color:var(--branco);
+    font:16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
     overscroll-behavior:none;-webkit-user-select:none;user-select:none;
-    -webkit-tap-highlight-color:transparent;overflow:hidden;
-  }
+    -webkit-tap-highlight-color:transparent;overflow:hidden}
   #app{position:fixed;inset:0;display:grid;place-items:center}
   canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:manipulation}
 
-  .tela{position:relative;z-index:3;width:100%;max-width:420px;padding:28px 24px;text-align:center;
-    display:none;flex-direction:column;align-items:center;gap:16px}
+  .tela{position:relative;z-index:3;width:100%;max-width:420px;padding:26px 24px;text-align:center;
+    display:none;flex-direction:column;align-items:center;gap:14px;max-height:100%;overflow-y:auto}
   .tela.on{display:flex}
 
-  h1{margin:0;font-size:15vw;line-height:.86;font-weight:800;letter-spacing:-.04em;
+  h1{margin:0;font-size:16vw;line-height:.84;font-weight:800;letter-spacing:-.045em;
     background:linear-gradient(120deg,var(--ciano),var(--magenta));
     -webkit-background-clip:text;background-clip:text;color:transparent}
-  @media(min-width:430px){h1{font-size:64px}}
+  @media(min-width:430px){h1{font-size:70px}}
   .sub{color:var(--fraco);font-size:15px;margin:0}
-  .mini{color:var(--fraquissimo);font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0}
+  .mini{color:var(--fraquissimo);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;margin:0}
 
-  .btn{appearance:none;border:0;border-radius:100px;padding:18px 34px;font-size:17px;font-weight:700;
+  .btn{appearance:none;border:0;border-radius:100px;padding:17px 32px;font-size:17px;font-weight:700;
     background:var(--branco);color:#08070F;cursor:pointer;width:100%;max-width:300px;
-    transition:transform .12s ease,opacity .12s ease}
+    transition:transform .12s ease}
   .btn:active{transform:scale(.96)}
-  .btn.vazio{background:transparent;color:var(--fraco);border:1px solid rgba(255,255,255,.18);font-weight:600}
+  .btn.vazio{background:transparent;color:var(--fraco);border:1px solid rgba(255,255,255,.18);font-weight:600;font-size:15px;padding:14px 26px}
   .btn.cor{background:linear-gradient(120deg,var(--ciano),var(--magenta));color:#08070F}
 
-  /* HUD do jogo */
   #hud{position:fixed;top:0;left:0;right:0;z-index:4;padding:14px 18px;
     display:none;justify-content:space-between;align-items:flex-start;pointer-events:none}
   #hud.on{display:flex}
-  #pontos{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-  #combo{text-align:right;font-size:13px;color:var(--fraco);font-weight:700;letter-spacing:.06em}
+  #pontos{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums}
+  #fase{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--fraquissimo);margin-top:6px}
+  #combo{text-align:right;font-size:11px;color:var(--fraquissimo);font-weight:700;letter-spacing:.12em}
   #combo b{display:block;font-size:26px;color:var(--ouro);line-height:1;font-variant-numeric:tabular-nums}
 
-  #julgamento{position:fixed;left:0;right:0;top:42%;z-index:4;text-align:center;pointer-events:none;
-    font-size:26px;font-weight:800;letter-spacing:-.01em;opacity:0}
-  #julgamento.flash{animation:jf .42s ease-out}
-  @keyframes jf{0%{opacity:1;transform:translateY(6px) scale(.9)}60%{opacity:1}100%{opacity:0;transform:translateY(-14px) scale(1.04)}}
+  /* instrução grande no meio da tela, durante o jogo */
+  #ordem{position:fixed;left:0;right:0;top:34%;z-index:4;text-align:center;pointer-events:none;
+    font-size:30px;font-weight:800;letter-spacing:-.02em;opacity:0;transition:opacity .25s ease;padding:0 24px}
+  #ordem.on{opacity:1}
+  #ordem small{display:block;font-size:14px;font-weight:600;color:var(--fraco);margin-top:8px;letter-spacing:0}
 
-  /* placar final */
-  .placar{width:100%;display:flex;flex-direction:column;gap:1px;margin:4px 0 8px}
-  .linha{display:flex;justify-content:space-between;align-items:baseline;
-    padding:13px 16px;background:rgba(255,255,255,.045)}
+  #julgamento{position:fixed;left:0;right:0;top:52%;z-index:4;text-align:center;pointer-events:none;
+    font-size:24px;font-weight:800;opacity:0}
+  #julgamento.flash{animation:jf .42s ease-out}
+  @keyframes jf{0%{opacity:1;transform:translateY(6px) scale(.9)}60%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+
+  /* fala de personagem, sobreposta e curta */
+  #fala{position:fixed;inset:0;z-index:6;display:none;align-items:center;justify-content:center;
+    background:rgba(6,5,12,.9);padding:32px 26px;text-align:center;cursor:pointer}
+  #fala.on{display:flex}
+  #fala .cx{max-width:420px;animation:sobe .4s cubic-bezier(.2,.8,.3,1)}
+  @keyframes sobe{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  #fala .quem{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ouro);margin:0 0 12px}
+  #fala .txt{font-size:23px;line-height:1.35;font-weight:600;margin:0}
+  #fala .toque{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--fraquissimo);margin:22px 0 0}
+
+  .placar{width:100%;display:flex;flex-direction:column;gap:1px;margin:2px 0 6px}
+  .linha{display:flex;justify-content:space-between;align-items:baseline;padding:12px 15px;background:rgba(255,255,255,.045)}
   .linha .k{color:var(--fraco);font-size:13px}
-  .linha .v{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums}
-  .grande{font-size:64px;font-weight:800;letter-spacing:-.04em;line-height:1;
+  .linha .v{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+  .grande{font-size:60px;font-weight:800;letter-spacing:-.04em;line-height:1;
     background:linear-gradient(120deg,var(--ciano),var(--magenta));
     -webkit-background-clip:text;background-clip:text;color:transparent}
 
-  .carta{width:100%;padding:16px 18px;border-left:2px solid var(--ouro);
+  .carta{width:100%;padding:15px 17px;border-left:2px solid var(--ouro);
     background:rgba(255,209,102,.07);text-align:left}
-  .carta .t{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ouro);margin:0 0 5px}
+  .carta .t{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ouro);margin:0 0 5px}
   .carta p{margin:0;font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.86)}
 
-  /* medidor de voz */
-  .medidor{width:100%;height:12px;border-radius:100px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
-  .medidor i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,var(--ciano),var(--magenta));
-    transition:right .08s linear}
-  .agulha{position:relative;width:100%;height:44px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden}
-  .agulha .zona{position:absolute;left:42%;right:42%;top:0;bottom:0;background:rgba(37,232,200,.16)}
+  .medidor{width:100%;height:10px;border-radius:100px;background:rgba(255,255,255,.08);overflow:hidden;position:relative}
+  .medidor i{position:absolute;inset:0 100% 0 0;background:linear-gradient(90deg,var(--ciano),var(--magenta));transition:right .08s linear}
+  .agulha{position:relative;width:100%;height:46px;border-radius:8px;background:rgba(255,255,255,.05);overflow:hidden}
+  .agulha .zona{position:absolute;left:40%;right:40%;top:0;bottom:0;background:rgba(37,232,200,.18)}
   .agulha .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(255,255,255,.3)}
   .agulha .pin{position:absolute;top:6px;bottom:6px;width:4px;border-radius:4px;background:var(--branco);
     left:50%;transform:translateX(-50%);transition:left .07s linear}
-  .nota-alvo{font-size:44px;font-weight:800;letter-spacing:-.03em}
+  .nota-alvo{font-size:46px;font-weight:800;letter-spacing:-.03em;line-height:1}
+  #v-tec{font:11px/1.5 ui-monospace,monospace;color:var(--fraquissimo);letter-spacing:.04em}
 </style>
-
 </head>
 <body>
 <div id="app">
   <canvas id="cv"></canvas>
 
   <div id="hud">
-    <div id="pontos">0</div>
+    <div><div id="pontos">0</div><div id="fase">—</div></div>
     <div id="combo">SEGUIDAS<b>0</b></div>
   </div>
+  <div id="ordem"></div>
   <div id="julgamento"></div>
 
-  <!-- ABERTURA -->
+  <div id="fala"><div class="cx">
+    <p class="quem" id="fala-quem"></p>
+    <p class="txt" id="fala-txt"></p>
+    <p class="toque">toque para seguir</p>
+  </div></div>
+
   <section class="tela on" id="t-inicio">
     <h1>ÍTACA</h1>
-    <p class="sub">A nota desce.<br>Toque na tela quando ela cruzar a linha.</p>
+    <p class="sub">Um navio parou de andar porque a tripulação perdeu o canto.<br>Três minutos para trazer ele de volta.</p>
     <button class="btn cor" id="b-jogar">Começar</button>
-    <p class="mini">40 segundos · sem cadastro</p>
+    <p class="mini">sem cadastro · a última parte pede sua voz</p>
   </section>
 
-  <!-- FIM DO RITMO -->
-  <section class="tela" id="t-fim">
-    <p class="mini" id="f-titulo">fim da remada</p>
-    <div class="grande" id="f-pontos">0</div>
+  <section class="tela" id="t-fase">
+    <p class="mini" id="p-titulo">fim do trecho</p>
+    <div class="grande" id="p-pontos">0</div>
     <div class="placar">
-      <div class="linha"><span class="k">Seguidas sem errar</span><span class="v" id="f-combo">0</span></div>
-      <div class="linha"><span class="k">No tempo exato</span><span class="v" id="f-perfeito">0</span></div>
-      <div class="linha"><span class="k">Seu atraso médio</span><span class="v" id="f-atraso">—</span></div>
+      <div class="linha"><span class="k">Seguidas sem errar</span><span class="v" id="p-combo">0</span></div>
+      <div class="linha"><span class="k">No tempo exato</span><span class="v" id="p-perfeito">0</span></div>
     </div>
-    <div class="carta" id="f-carta">
-      <p class="t" id="f-carta-t">Carta I</p>
-      <p id="f-carta-p"></p>
-    </div>
-    <button class="btn cor" id="b-voz">Agora com a sua voz</button>
-    <button class="btn vazio" id="b-denovo">Jogar de novo</button>
-    <button class="btn vazio" id="b-share">Mandar no WhatsApp</button>
+    <div class="carta"><p class="t" id="p-carta-t"></p><p id="p-carta-p"></p></div>
+    <button class="btn cor" id="b-seguir">Seguir viagem</button>
   </section>
 
-  <!-- VOZ -->
   <section class="tela" id="t-voz">
     <p class="mini" id="v-passo">nota 1 de 3</p>
     <div class="nota-alvo" id="v-nome">DÓ</div>
-    <div class="agulha">
-      <div class="zona"></div><div class="mid"></div><div class="pin" id="v-pin"></div>
-    </div>
+    <div class="agulha"><div class="zona"></div><div class="mid"></div><div class="pin" id="v-pin"></div></div>
     <div class="medidor"><i id="v-barra"></i></div>
-    <p class="sub" id="v-dica">Cante “aaah” e segure</p>
-    <button class="btn vazio" id="v-pular">Pular esta nota</button>
+    <p class="sub" id="v-dica">Ouça e repita</p>
+    <p id="v-tec">—</p>
+    <button class="btn vazio" id="v-repetir">Ouvir a nota de novo</button>
+    <button class="btn vazio" id="v-pular">Não consigo esta nota</button>
   </section>
 
-  <!-- FIM GERAL -->
   <section class="tela" id="t-final">
-    <p class="mini">fim</p>
+    <p class="mini">Ítaca</p>
     <div class="grande" id="g-pontos">0</div>
     <div class="placar">
-      <div class="linha"><span class="k">Ritmo</span><span class="v" id="g-ritmo">—</span></div>
-      <div class="linha"><span class="k">Afinação</span><span class="v" id="g-voz">—</span></div>
+      <div class="linha"><span class="k">Seu pulso</span><span class="v" id="g-ritmo">—</span></div>
+      <div class="linha"><span class="k">Sua afinação</span><span class="v" id="g-voz">—</span></div>
+      <div class="linha"><span class="k">Maior sequência</span><span class="v" id="g-combo">—</span></div>
     </div>
-    <div class="carta">
-      <p class="t" id="g-t">—</p>
-      <p id="g-p"></p>
-    </div>
+    <div class="carta"><p class="t" id="g-t">—</p><p id="g-p"></p></div>
     <a class="btn cor" id="g-wa" href="#" target="_blank" rel="noopener" style="text-decoration:none;line-height:1.2">Quero aprender de verdade</a>
     <button class="btn vazio" id="g-share">Desafiar alguém</button>
     <button class="btn vazio" id="g-denovo">Jogar de novo</button>
-    <p class="mini">Prana Arte &amp; Equilíbrio · v1</p>
+    <p class="mini">Prana Arte &amp; Equilíbrio · v2</p>
   </section>
 </div>
 
 <script>
 (function(){
 "use strict";
-
-/* ---------- utilidades ---------- */
 var $ = function(id){ return document.getElementById(id); };
+var DEBUG = location.search.indexOf("debug=1") >= 0;
+
 function tela(id){
   var ts = document.querySelectorAll(".tela");
   for(var i=0;i<ts.length;i++){ ts[i].classList.toggle("on", ts[i].id === id); }
   $("hud").classList.toggle("on", id === null);
 }
+function ordem(txt, sub){
+  var o = $("ordem");
+  if(txt === null){ o.classList.remove("on"); return; }
+  o.innerHTML = txt + (sub ? "<small>" + sub + "</small>" : "");
+  o.classList.add("on");
+}
 
-/* ---------- audio ---------- */
+/* ---------- áudio ---------- */
 var ctx = null;
 function ac(){
   if(!ctx){ var A = window.AudioContext || window.webkitAudioContext; ctx = new A(); }
@@ -176,8 +186,7 @@ function bip(freq, dur, vol, tipo){
   g.gain.setValueAtTime(0, t);
   g.gain.linearRampToValueAtTime(vol, t + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-  o.connect(g); g.connect(c.destination);
-  o.start(t); o.stop(t + dur + 0.03);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.03);
 }
 function tambor(vol){
   var c = ac(), t = c.currentTime, o = c.createOscillator(), g = c.createGain();
@@ -186,231 +195,256 @@ function tambor(vol){
   o.frequency.exponentialRampToValueAtTime(52, t + 0.12);
   g.gain.setValueAtTime(vol, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
-  o.connect(g); g.connect(c.destination);
-  o.start(t); o.stop(t + 0.22);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 0.22);
 }
-
-/* pentatônica: qualquer sequência soa bem */
-var PENTA = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+var PENTA = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25];
 
 /* ---------- canvas ---------- */
-var cv = $("cv"), cx = cv.getContext("2d"), W = 0, H = 0, DPR = 1;
+var cv = $("cv"), cx = cv.getContext("2d"), W=0, H=0, DPR=1, LINHA=0;
 function medir(){
   DPR = Math.min(2, window.devicePixelRatio || 1);
   W = cv.clientWidth; H = cv.clientHeight;
-  cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
+  cv.width = Math.floor(W*DPR); cv.height = Math.floor(H*DPR);
   cx.setTransform(DPR,0,0,DPR,0,0);
 }
 window.addEventListener("resize", medir);
 
-/* ---------- estado ---------- */
-var LINHA_Y = 0;          // altura da linha de acerto
-var QUEDA = 1500;         // ms que a nota leva para cair até a linha
-var notas = [], iProx = 0, t0 = 0, rodando = false, raf = 0;
-var pontos = 0, combo = 0, comboMax = 0, perfeitos = 0, acertos = 0, erros = 0, desvios = [];
-var pulsos = [];          // brilhos de fundo
-var jogoFim = 0;
+/* ---------- roteiro ---------- */
+var FASES = [
+  { nome:"a remada", bpm:86,  compassos:4, colcheias:false,
+    quem:"EURÍLOCO · contramestre", fala:"Cinquenta homens, cinquenta remos, um tambor só. Se um braço sai do tempo, o navio anda em círculo.",
+    carta:{ t:"Carta I · a batida", p:"Antes de existir nota, nome ou papel, existia batida. Palma, pé no chão, couro esticado. Todo povo do mundo começou pelo mesmo lugar." } },
+  { nome:"mar aberto", bpm:110, compassos:5, colcheias:true,
+    quem:"A MUSA · filha da Memória", fala:"As notas que você está tocando são cinco. Essa escala apareceu sozinha na China, na África e no blues — sem ninguém combinar com ninguém.",
+    carta:{ t:"Carta II · o que todos acharam", p:"Quando a humanidade inteira chega no mesmo lugar por conta própria, é sinal de que aquilo já estava na gente antes de estar na música." } },
+  { nome:"tempestade", bpm:134, compassos:5, colcheias:true,
+    quem:"CIRCE · filha do Sol", fala:"Meu pai é o Sol e eu conheço cada erva desta ilha. Com você vai ser diferente daqueles homens: você vai aprender.",
+    carta:{ t:"Carta III · Guido", p:"Por milhares de anos a música morria junto com quem sabia tocar. Até que um sujeito chamado Guido desenhou linhas numa página e pendurou bolinhas nelas." } }
+];
+var FALA_VOZ = { quem:"AS SEREIAS", fala:"Dizem que a gente seduz marinheiro. Que preguiça. O que a gente oferece é tudo o que já aconteceu no mundo — cantado. Canta comigo." };
 
-function fazerMapa(){
-  // BPM sobe em três trechos: viagem, mar aberto, tempestade
-  var trechos = [{bpm:88, compassos:4}, {bpm:112, compassos:5}, {bpm:138, compassos:6}];
-  var lista = [], t = 1800, k = 0;
-  for(var s=0;s<trechos.length;s++){
-    var beat = 60000 / trechos[s].bpm;
-    for(var c=0;c<trechos[s].compassos;c++){
-      for(var b=0;b<4;b++){
-        lista.push({ t:t, f:PENTA[k % PENTA.length], hit:false, perdida:false });
-        k++;
-        // a partir do segundo trecho entram colcheias no 2º e 4º tempo
-        if(s >= 1 && (b === 1 || b === 3)){
-          lista.push({ t:t + beat/2, f:PENTA[(k+2) % PENTA.length], hit:false, perdida:false });
-        }
-        t += beat;
+/* ---------- estado ---------- */
+var QUEDA = 1600;
+var notas=[], t0=0, rodando=false, raf=0, fimEm=0, iFase=0, demoAte=0;
+var pontos=0, combo=0, comboMax=0, perfeitos=0, totalNotas=0, desvios=[], pulsos=[];
+
+function agora(){ return performance.now() - t0; }
+
+function montarNotas(f, comTutorial){
+  var beat = 60000/f.bpm, lista=[], t = comTutorial ? 900 : 1500, k=0;
+  demoAte = 0;
+  if(comTutorial){
+    // quatro batidas de demonstração: o jogo acerta sozinho
+    for(var d=0; d<4; d++){ lista.push({t:t, f:PENTA[d], demo:true, hit:false, perdida:false}); t += beat; }
+    demoAte = t;
+    t += beat;                       // um respiro antes de passar a vez
+  }
+  for(var c=0;c<f.compassos;c++){
+    for(var b=0;b<4;b++){
+      lista.push({t:t, f:PENTA[k%PENTA.length], hit:false, perdida:false}); k++;
+      if(f.colcheias && (b===1 || b===3)){
+        lista.push({t:t+beat/2, f:PENTA[(k+2)%PENTA.length], hit:false, perdida:false});
       }
+      t += beat;
     }
-    t += beat; // respiro entre trechos
   }
   return lista;
 }
 
-function comecar(){
-  medir();
-  notas = fazerMapa(); iProx = 0;
-  pontos = 0; combo = 0; comboMax = 0; perfeitos = 0; acertos = 0; erros = 0; desvios = []; pulsos = [];
-  $("pontos").textContent = "0";
+function comecarFase(i){
+  iFase = i; medir();
+  var f = FASES[i];
+  notas = montarNotas(f, i === 0);
+  totalNotas = 0;
+  for(var n=0;n<notas.length;n++){ if(!notas[n].demo) totalNotas++; }
+  combo = 0; perfeitos = 0; desvios = []; pulsos = [];
+  if(i === 0) pontos = 0;
+  $("pontos").textContent = pontos;
+  $("fase").textContent = f.nome;
   $("combo").innerHTML = "SEGUIDAS<b>0</b>";
   tela(null);
-  rodando = true;
-  t0 = performance.now();
-  jogoFim = notas[notas.length-1].t + 1400;
+  rodando = true; t0 = performance.now();
+  fimEm = notas[notas.length-1].t + 1500;
+  if(i === 0) ordem("ESCUTE", "o jogo bate sozinho quatro vezes");
+  else ordem(null);
   raf = requestAnimationFrame(laco);
 }
 
-function agora(){ return performance.now() - t0; }
-
 function julgar(txt, cor){
-  var j = $("julgamento");
-  j.textContent = txt; j.style.color = cor;
+  var j = $("julgamento"); j.textContent = txt; j.style.color = cor;
   j.classList.remove("flash"); void j.offsetWidth; j.classList.add("flash");
+}
+
+function acertar(n, dev){
+  n.hit = true; desvios.push(dev);
+  combo++; if(combo > comboMax) comboMax = combo;
+  var ganho;
+  if(Math.abs(dev) <= 75){ perfeitos++; ganho = 100; julgar("no tempo", "#25E8C8"); }
+  else if(Math.abs(dev) <= 150){ ganho = 60; julgar("bom", "#FFD166"); }
+  else { ganho = 30; julgar(dev > 0 ? "cedo" : "tarde", "rgba(255,255,255,.6)"); }
+  pontos += ganho + Math.min(combo,20)*5;
+  $("pontos").textContent = pontos;
+  $("combo").innerHTML = "SEGUIDAS<b>" + combo + "</b>";
+  bip(n.f, 0.42, 0.20, "triangle"); tambor(0.18);
+  pulsos.push({t:performance.now(), forte:Math.abs(dev) <= 75});
 }
 
 function tocar(){
   if(!rodando) return;
-  var a = agora(), melhor = -1, melhorErro = 1e9;
+  var a = agora();
+  if(a < demoAte) return;                       // durante a demonstração o toque não conta
+  var melhor=-1, err=1e9;
   for(var i=0;i<notas.length;i++){
     var n = notas[i];
-    if(n.hit || n.perdida) continue;
+    if(n.hit || n.perdida || n.demo) continue;
     var d = Math.abs(n.t - a);
-    if(d < melhorErro){ melhorErro = d; melhor = i; }
+    if(d < err){ err = d; melhor = i; }
   }
-  if(melhor < 0 || melhorErro > 240){       // fora de qualquer janela
-    combo = 0; erros++;
-    $("combo").innerHTML = "SEGUIDAS<b>0</b>";
-    julgar("fora", "rgba(255,255,255,.4)");
-    tambor(0.12);
-    return;
+  if(melhor < 0 || err > 260){
+    combo = 0; $("combo").innerHTML = "SEGUIDAS<b>0</b>";
+    julgar("fora", "rgba(255,255,255,.4)"); tambor(0.10); return;
   }
-  var n2 = notas[melhor];
-  n2.hit = true;
-  var dev = n2.t - a;                        // negativo = adiantado
-  desvios.push(dev);
-  acertos++;
-  combo++; if(combo > comboMax) comboMax = combo;
-
-  var ganho;
-  if(Math.abs(dev) <= 70){ perfeitos++; ganho = 100; julgar("no tempo", "#25E8C8"); }
-  else if(Math.abs(dev) <= 140){ ganho = 60; julgar("bom", "#FFD166"); }
-  else { ganho = 30; julgar(dev > 0 ? "cedo" : "tarde", "rgba(255,255,255,.6)"); }
-
-  pontos += ganho + Math.min(combo, 20) * 5;
-  $("pontos").textContent = pontos;
-  $("combo").innerHTML = "SEGUIDAS<b>" + combo + "</b>";
-
-  bip(n2.f, 0.42, 0.20, "triangle");
-  tambor(0.18);
-  pulsos.push({ t:performance.now(), forte:Math.abs(dev) <= 70 });
+  acertar(notas[melhor], notas[melhor].t - a);
 }
 
 function laco(){
   if(!rodando) return;
   var a = agora();
 
-  // notas perdidas
   for(var i=0;i<notas.length;i++){
     var n = notas[i];
-    if(!n.hit && !n.perdida && a - n.t > 240){
-      n.perdida = true; erros++; combo = 0;
-      $("combo").innerHTML = "SEGUIDAS<b>0</b>";
+    if(n.hit || n.perdida) continue;
+    if(n.demo && a >= n.t){                     // demonstração: acerta sozinha
+      n.hit = true; bip(n.f, 0.42, 0.20, "triangle"); tambor(0.20);
+      pulsos.push({t:performance.now(), forte:true});
+      continue;
+    }
+    if(!n.demo && a - n.t > 260){
+      n.perdida = true; combo = 0; $("combo").innerHTML = "SEGUIDAS<b>0</b>";
     }
   }
 
-  desenhar(a);
+  if(iFase === 0){
+    if(a < demoAte) ordem("ESCUTE", "o jogo bate sozinho quatro vezes");
+    else if(a < demoAte + 1800) ordem("AGORA VOCÊ", "toque na tela quando o círculo cruzar a linha");
+    else ordem(null);
+  }
 
-  if(a > jogoFim){ terminarRitmo(); return; }
+  desenhar(a);
+  if(a > fimEm){ fimFase(); return; }
   raf = requestAnimationFrame(laco);
 }
 
 function desenhar(a){
-  LINHA_Y = H * 0.78;
+  LINHA = H * 0.76;
   cx.clearRect(0,0,W,H);
-
-  // fundo
   var g = cx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,"#100D1F"); g.addColorStop(1,"#08070F");
   cx.fillStyle = g; cx.fillRect(0,0,W,H);
 
-  // brilho dos acertos
   for(var p=pulsos.length-1;p>=0;p--){
-    var idade = (performance.now() - pulsos[p].t) / 480;
-    if(idade >= 1){ pulsos.splice(p,1); continue; }
-    var r = 60 + idade * (pulsos[p].forte ? 320 : 190);
-    var alpha = (1 - idade) * (pulsos[p].forte ? 0.30 : 0.16);
-    var rg = cx.createRadialGradient(W/2, LINHA_Y, 0, W/2, LINHA_Y, r);
-    rg.addColorStop(0, "rgba(37,232,200," + alpha + ")");
-    rg.addColorStop(1, "rgba(37,232,200,0)");
+    var id = (performance.now()-pulsos[p].t)/480;
+    if(id >= 1){ pulsos.splice(p,1); continue; }
+    var r = 60 + id*(pulsos[p].forte?320:190), al = (1-id)*(pulsos[p].forte?0.30:0.16);
+    var rg = cx.createRadialGradient(W/2,LINHA,0,W/2,LINHA,r);
+    rg.addColorStop(0,"rgba(37,232,200,"+al+")"); rg.addColorStop(1,"rgba(37,232,200,0)");
     cx.fillStyle = rg; cx.fillRect(0,0,W,H);
   }
 
-  // linha de acerto
-  cx.strokeStyle = "rgba(255,255,255,.22)"; cx.lineWidth = 1;
-  cx.beginPath(); cx.moveTo(0, LINHA_Y); cx.lineTo(W, LINHA_Y); cx.stroke();
-  cx.fillStyle = "rgba(255,255,255,.06)";
-  cx.fillRect(0, LINHA_Y - 3, W, 6);
+  // a linha de acerto, bem visível
+  cx.fillStyle = "rgba(255,255,255,.07)"; cx.fillRect(0, LINHA-26, W, 52);
+  cx.strokeStyle = "rgba(255,255,255,.5)"; cx.lineWidth = 2;
+  cx.beginPath(); cx.moveTo(0,LINHA); cx.lineTo(W,LINHA); cx.stroke();
+  var R0 = Math.max(15, Math.min(26, W*0.055));
+  cx.strokeStyle = "rgba(255,255,255,.28)"; cx.lineWidth = 2;
+  cx.beginPath(); cx.arc(W/2, LINHA, R0+9, 0, Math.PI*2); cx.stroke();
 
-  // notas
-  var R = Math.max(15, Math.min(26, W * 0.055));
   for(var i=0;i<notas.length;i++){
     var n = notas[i];
     if(n.hit) continue;
     var falta = n.t - a;
-    if(falta > QUEDA || falta < -260) continue;
-    var y = LINHA_Y - (falta / QUEDA) * LINHA_Y;
-    var perto = 1 - Math.min(1, Math.abs(falta) / QUEDA);
-    cx.globalAlpha = n.perdida ? 0.18 : (0.35 + perto * 0.65);
-
-    var grad = cx.createLinearGradient(W/2 - R, y - R, W/2 + R, y + R);
-    grad.addColorStop(0, "#25E8C8"); grad.addColorStop(1, "#FF4D8D");
+    if(falta > QUEDA || falta < -280) continue;
+    var y = LINHA - (falta/QUEDA)*LINHA;
+    var perto = 1 - Math.min(1, Math.abs(falta)/QUEDA);
+    cx.globalAlpha = n.perdida ? 0.16 : (0.35 + perto*0.65);
+    var grad = cx.createLinearGradient(W/2-R0, y-R0, W/2+R0, y+R0);
+    if(n.demo){ grad.addColorStop(0,"#FFD166"); grad.addColorStop(1,"#FF9E3D"); }
+    else { grad.addColorStop(0,"#25E8C8"); grad.addColorStop(1,"#FF4D8D"); }
     cx.fillStyle = grad;
-    cx.beginPath(); cx.arc(W/2, y, R * (0.72 + perto * 0.28), 0, Math.PI*2); cx.fill();
-
-    if(!n.perdida && perto > 0.75){
-      cx.globalAlpha = (perto - 0.75) * 2.6;
+    cx.beginPath(); cx.arc(W/2, y, R0*(0.72+perto*0.28), 0, Math.PI*2); cx.fill();
+    if(!n.perdida && perto > 0.78){
+      cx.globalAlpha = (perto-0.78)*3;
       cx.strokeStyle = "rgba(255,255,255,.9)"; cx.lineWidth = 2;
-      cx.beginPath(); cx.arc(W/2, y, R + 7, 0, Math.PI*2); cx.stroke();
+      cx.beginPath(); cx.arc(W/2, y, R0+7, 0, Math.PI*2); cx.stroke();
     }
     cx.globalAlpha = 1;
   }
 }
 
-/* ---------- cartas (a história vira prêmio) ---------- */
-var CARTAS = [
-  { t:"Carta I · a batida", p:"Antes de existir nota, nome ou papel, existia batida. Palma, pé no chão, couro esticado. Todo povo do mundo começou pelo mesmo lugar." },
-  { t:"Carta II · as cinco notas", p:"As notas que você acabou de tocar formam uma escala de cinco sons que apareceu sozinha na China, na África, na Escócia e no blues — sem ninguém combinar com ninguém." },
-  { t:"Carta III · o pulso", p:"Cinquenta remadores, um tambor só. Se um braço sai do tempo, o navio anda em círculo. Foi assim que se descobriu que ritmo é coisa coletiva." },
-  { t:"Carta IV · Guido", p:"Por milhares de anos a música morria junto com quem sabia tocar. Até que um sujeito chamado Guido desenhou linhas numa página e pendurou bolinhas nelas." }
-];
-
-function terminarRitmo(){
-  rodando = false; cancelAnimationFrame(raf);
-  var soma = 0; for(var i=0;i<desvios.length;i++){ soma += Math.abs(desvios[i]); }
-  var medio = desvios.length ? Math.round(soma/desvios.length) : null;
-  ritmoResumo = { pontos:pontos, combo:comboMax, perfeitos:perfeitos, medio:medio, acertos:acertos, total:notas.length };
-
-  $("f-pontos").textContent = pontos;
-  $("f-combo").textContent = comboMax;
-  $("f-perfeito").textContent = perfeitos + " de " + notas.length;
-  $("f-atraso").textContent = (medio === null) ? "—" : (medio + " ms");
-  $("f-titulo").textContent = comboMax >= 12 ? "o navio andou" : (comboMax >= 6 ? "quase lá" : "o mar discorda");
-
-  var c = CARTAS[Math.min(CARTAS.length-1, Math.floor(comboMax / 5))];
-  $("f-carta-t").textContent = c.t; $("f-carta-p").textContent = c.p;
-
-  tela("t-fim");
+/* ---------- fala curta entre fases ---------- */
+var falaDepois = null;
+function falar(quem, txt, depois){
+  $("fala-quem").textContent = quem;
+  $("fala-txt").textContent = txt;
+  falaDepois = depois;
+  $("fala").classList.add("on");
 }
-var ritmoResumo = null, vozResumo = null;
+$("fala").addEventListener("click", function(){
+  $("fala").classList.remove("on");
+  var f = falaDepois; falaDepois = null;
+  if(f) f();
+});
 
-/* ---------- fase da voz ---------- */
+/* ---------- fim de fase ---------- */
+var somaDesvios = 0, nDesvios = 0, perfeitosTotal = 0, notasTotal = 0;
+function fimFase(){
+  rodando = false; cancelAnimationFrame(raf); ordem(null);
+  for(var i=0;i<desvios.length;i++){ somaDesvios += Math.abs(desvios[i]); nDesvios++; }
+  perfeitosTotal += perfeitos; notasTotal += totalNotas;
+
+  var f = FASES[iFase];
+  $("p-titulo").textContent = combo >= 8 ? "o navio andou" : (combo >= 4 ? "quase lá" : "o mar discorda");
+  $("p-pontos").textContent = pontos;
+  $("p-combo").textContent = comboMax;
+  $("p-perfeito").textContent = perfeitos + " de " + totalNotas;
+  $("p-carta-t").textContent = f.carta.t;
+  $("p-carta-p").textContent = f.carta.p;
+  $("b-seguir").textContent = (iFase < FASES.length-1) ? "Seguir viagem" : "Chegar nas Sereias";
+  tela("t-fase");
+}
+
+$("b-seguir").addEventListener("click", function(){
+  if(iFase < FASES.length-1){
+    var prox = iFase+1, f = FASES[prox];
+    falar(f.quem, f.fala, function(){ comecarFase(prox); });
+  } else {
+    falar(FALA_VOZ.quem, FALA_VOZ.fala, irParaVoz);
+  }
+});
+
+/* ---------- voz ---------- */
 var ALVOS = [{f:261.63,n:"DÓ"},{f:329.63,n:"MI"},{f:392.00,n:"SOL"}];
-var vI = 0, vStream = null, vAn = null, vBuf = null, vRaf = 0, vSeguro = 0, vMedidos = [], vAtivo = false;
+var vI=0, vStream=null, vAn=null, vBuf=null, vRaf=0, vSeguro=0, vMedidos=[], vAtivo=false, vErro=null;
+var PRECISA = 700;   // ms segurando afinado
 
 function autoCorrel(b, taxa){
-  var N = b.length, i, j, rms = 0;
+  var N=b.length, i, j, rms=0;
   for(i=0;i<N;i++){ rms += b[i]*b[i]; }
   rms = Math.sqrt(rms/N);
-  if(rms < 0.008) return -1;
+  if(rms < 0.006) return {f:-1, rms:rms};
   var c = new Float32Array(N);
   for(i=0;i<N;i++){ var s=0; for(j=0;j<N-i;j++){ s += b[j]*b[j+i]; } c[i]=s; }
   var d=0; while(d<N-1 && c[d]>c[d+1]) d++;
   var mx=-1, mp=-1;
   for(i=d;i<N;i++){ if(c[i]>mx){ mx=c[i]; mp=i; } }
-  if(mp<=0) return -1;
+  if(mp<=0) return {f:-1, rms:rms};
   var T=mp;
   if(T>0 && T<N-1){
     var x1=c[T-1], x2=c[T], x3=c[T+1], aa=(x1+x3-2*x2)/2, bb=(x3-x1)/2;
     if(aa!==0) T = T - bb/(2*aa);
   }
   var f = taxa/T;
-  return (f<60 || f>1200) ? -1 : f;
+  return { f:(f<60||f>1200) ? -1 : f, rms:rms };
 }
 function cents(f, alvo){
   while(f > alvo*1.4142) f/=2;
@@ -419,19 +453,26 @@ function cents(f, alvo){
 }
 
 function irParaVoz(){
-  var c = ac();
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ vozResumo = null; final(); return; }
+  ac();
+  $("v-tec").textContent = "pedindo o microfone...";
+  tela("t-voz");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    vErro = "este navegador não dá acesso ao microfone"; fecharVoz(); return;
+  }
   navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}})
   .then(function(st){
     vStream = st;
-    var src = c.createMediaStreamSource(st);
+    var c = ac(), src = c.createMediaStreamSource(st);
     vAn = c.createAnalyser(); vAn.fftSize = 2048;
     vBuf = new Float32Array(vAn.fftSize);
     src.connect(vAn);
-    vI = 0; vMedidos = [];
-    tela("t-voz"); rodadaVoz();
+    vI = 0; vMedidos = []; vErro = null;
+    rodadaVoz();
   })
-  .catch(function(){ vozResumo = null; final(); });
+  .catch(function(e){
+    vErro = (e && e.name === "NotAllowedError") ? "você não autorizou o microfone" : "não consegui abrir o microfone";
+    fecharVoz();
+  });
 }
 function pararVoz(){
   vAtivo = false; cancelAnimationFrame(vRaf);
@@ -439,78 +480,87 @@ function pararVoz(){
 }
 function rodadaVoz(){
   if(vI >= ALVOS.length){ fecharVoz(); return; }
-  vSeguro = 0; vAtivo = true;
+  vSeguro = 0; vAtivo = false;
   $("v-passo").textContent = "nota " + (vI+1) + " de " + ALVOS.length;
   $("v-nome").textContent = ALVOS[vI].n;
   $("v-barra").style.right = "100%";
-  $("v-dica").textContent = "Ouça e repita";
-  bip(ALVOS[vI].f, 1.0, 0.22, "sine");
+  $("v-dica").textContent = "Ouça...";
+  bip(ALVOS[vI].f, 1.1, 0.24, "sine");
   setTimeout(function(){
-    if(!vAtivo) return;
-    $("v-dica").textContent = "Cante “aaah” e segure";
-    vRaf = requestAnimationFrame(lacoVoz);
-  }, 1200);
+    $("v-dica").textContent = "Agora cante “aaah” e segure";
+    vAtivo = true; vRaf = requestAnimationFrame(lacoVoz);
+  }, 1300);
 }
 function lacoVoz(){
   if(!vAtivo) return;
   vAn.getFloatTimeDomainData(vBuf);
-  var f = autoCorrel(vBuf, ac().sampleRate);
-  if(f > 0){
-    var d = cents(f, ALVOS[vI].f);
-    $("v-pin").style.left = Math.max(2, Math.min(98, 50 + d/2.6)) + "%";
-    if(Math.abs(d) < 45){
+  var r = autoCorrel(vBuf, ac().sampleRate);
+  if(r.f > 0){
+    var d = cents(r.f, ALVOS[vI].f);
+    $("v-pin").style.left = Math.max(2, Math.min(98, 50 + d/3)) + "%";
+    $("v-tec").textContent = Math.round(r.f) + " Hz · " + (d>0?"+":"") + Math.round(d) + " cents";
+    if(Math.abs(d) < 55){
       vSeguro += 16;
-      $("v-barra").style.right = Math.max(0, 100 - (vSeguro/900)*100) + "%";
-      if(vSeguro >= 900){
+      if(vSeguro >= PRECISA){
         vMedidos.push(Math.abs(d));
         bip(ALVOS[vI].f*2, 0.5, 0.16, "sine");
-        vAtivo = false; vI++;
-        setTimeout(rodadaVoz, 700);
-        return;
+        $("v-dica").textContent = "Isso!";
+        vAtivo = false; vI++; setTimeout(rodadaVoz, 800); return;
       }
     } else {
-      vSeguro = Math.max(0, vSeguro - 10);
-      $("v-barra").style.right = Math.max(0, 100 - (vSeguro/900)*100) + "%";
+      vSeguro = Math.max(0, vSeguro - 12);
     }
+  } else {
+    $("v-tec").textContent = r.rms < 0.006 ? "não estou ouvindo nada — cante mais forte" : "som sem altura definida";
+    vSeguro = Math.max(0, vSeguro - 6);
   }
+  $("v-barra").style.right = Math.max(0, 100 - (vSeguro/PRECISA)*100) + "%";
   vRaf = requestAnimationFrame(lacoVoz);
 }
+$("v-repetir").addEventListener("click", function(){ bip(ALVOS[vI].f, 1.1, 0.24, "sine"); });
+$("v-pular").addEventListener("click", function(){
+  vAtivo = false; cancelAnimationFrame(vRaf); vI++;
+  if(vI >= ALVOS.length) fecharVoz(); else setTimeout(rodadaVoz, 200);
+});
 function fecharVoz(){
   pararVoz();
   var s=0; for(var i=0;i<vMedidos.length;i++){ s += vMedidos[i]; }
-  vozResumo = vMedidos.length ? { erro:Math.round(s/vMedidos.length), acertou:vMedidos.length } : null;
+  vozErro = vMedidos.length ? Math.round(s/vMedidos.length) : null;
+  vozAcertos = vMedidos.length;
   final();
 }
+var vozErro = null, vozAcertos = 0;
 
 /* ---------- final ---------- */
 function final(){
   pararVoz();
-  var r = ritmoResumo || {pontos:0,combo:0,medio:null};
-  $("g-pontos").textContent = r.pontos;
-  $("g-ritmo").textContent = (r.medio === null) ? "—" : (r.medio + " ms de desvio");
-  $("g-voz").textContent = vozResumo ? (vozResumo.erro + " cents · " + vozResumo.acertou + " de 3") : "não medida";
+  var medio = nDesvios ? Math.round(somaDesvios/nDesvios) : null;
+  $("g-pontos").textContent = pontos;
+  $("g-ritmo").textContent = (medio === null) ? "—" : (medio + " ms de desvio");
+  $("g-voz").textContent = vErro ? vErro : (vozErro === null ? "não medida" : (vozErro + " cents · " + vozAcertos + " de 3"));
+  $("g-combo").textContent = comboMax;
 
+  var bomRitmo = (medio !== null && medio < 95);
+  var boaVoz = (vozErro !== null && vozErro <= 30 && vozAcertos === 3);
   var t, p;
-  var bomRitmo = (r.medio !== null && r.medio < 90);
-  var boaVoz = (vozResumo && vozResumo.erro <= 25 && vozResumo.acertou === 3);
   if(bomRitmo && boaVoz){
     t = "Ítaca à vista";
     p = "Pulso firme e voz que acha a nota e fica lá. Isso não se ensina do zero — se lapida. Quem chega assim passa rápido demais por aula de iniciante.";
   } else if(boaVoz){
     t = "Sua voz acerta. Falta o tempo";
-    p = "Afinação você tem. O que escorrega é o pulso, e é o problema mais comum de quem canta: a voz chega certa, mas atrasada.";
+    p = "Afinação você já tem. O que escorrega é o pulso — e é o problema mais comum de quem canta: a voz chega certa, mas atrasada.";
   } else if(bomRitmo){
     t = "Você tem o tempo no corpo";
-    p = "Ritmo é a base de tudo e você já tem. Afinação se constrói por cima disso, e é o que mais muda nos primeiros meses.";
+    p = "Ritmo é a base de tudo, e você já tem. Afinação se constrói por cima disso, e é o que mais muda nos três primeiros meses.";
   } else {
     t = "Você começa do começo";
     p = "E é exatamente para isso que existe professor. Pulso e afinação são as duas primeiras coisas que se constroem — e as que mais mudam em três meses.";
   }
   $("g-t").textContent = t; $("g-p").textContent = p;
 
-  var msg = "Joguei ÍTACA e fiz " + r.pontos + " pontos, " + r.combo + " seguidas. Duvido que você passe disso: ";
+  var msg = "Cheguei em Ítaca com " + pontos + " pontos e " + comboMax + " notas seguidas. Duvido que você passe disso: ";
   $("g-share").onclick = function(){
-    window.open("https://wa.me/?text=" + encodeURIComponent(msg + location.href), "_blank");
+    window.open("https://wa.me/?text=" + encodeURIComponent(msg + location.href.split("?")[0]), "_blank");
   };
   $("g-wa").href = "https://wa.me/5511983383883?text=" +
     encodeURIComponent("Oi! Joguei o ÍTACA e quero aprender de verdade na Prana.");
@@ -518,35 +568,27 @@ function final(){
 }
 
 /* ---------- ligações ---------- */
-$("b-jogar").addEventListener("click", function(){ ac(); comecar(); });
-$("b-denovo").addEventListener("click", comecar);
-$("b-voz").addEventListener("click", irParaVoz);
-$("v-pular").addEventListener("click", function(){
-  vAtivo = false; cancelAnimationFrame(vRaf); vI++;
-  if(vI >= ALVOS.length){ fecharVoz(); } else { setTimeout(rodadaVoz, 250); }
-});
-$("g-denovo").addEventListener("click", comecar);
-$("b-share").addEventListener("click", function(){
-  var r = ritmoResumo || {pontos:0,combo:0};
-  window.open("https://wa.me/?text=" + encodeURIComponent(
-    "Joguei ÍTACA e fiz " + r.pontos + " pontos, " + r.combo + " seguidas. Duvido que você passe disso: " + location.href), "_blank");
-});
-
-// o toque durante o jogo
-function aoTocar(e){
-  if(!rodando) return;
-  if(e.target.closest && e.target.closest("button, a")) return;
-  e.preventDefault();
-  tocar();
+function zarpar(){
+  ac();
+  somaDesvios = 0; nDesvios = 0; perfeitosTotal = 0; notasTotal = 0;
+  comboMax = 0; pontos = 0; vozErro = null; vozAcertos = 0; vErro = null;
+  var f = FASES[0];
+  falar(f.quem, f.fala, function(){ comecarFase(0); });
 }
-document.addEventListener("pointerdown", aoTocar, {passive:false});
+$("b-jogar").addEventListener("click", zarpar);
+$("g-denovo").addEventListener("click", zarpar);
+
+document.addEventListener("pointerdown", function(e){
+  if(!rodando) return;
+  if(e.target.closest && e.target.closest("button, a, #fala")) return;
+  e.preventDefault(); tocar();
+}, {passive:false});
 document.addEventListener("keydown", function(e){
-  if(e.code === "Space" || e.code === "Enter"){ if(rodando){ e.preventDefault(); tocar(); } }
+  if((e.code === "Space" || e.code === "Enter") && rodando){ e.preventDefault(); tocar(); }
 });
 
 medir();
 })();
 </script>
-
 </body>
 </html>
