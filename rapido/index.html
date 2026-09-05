@@ -150,7 +150,7 @@
     <a class="btn cor" id="g-wa" href="#" target="_blank" rel="noopener" style="text-decoration:none;line-height:1.2">Quero aprender de verdade</a>
     <button class="btn vazio" id="g-share">Desafiar alguém</button>
     <button class="btn vazio" id="g-denovo">Jogar de novo</button>
-    <p class="mini">Prana Arte &amp; Equilíbrio · v2</p>
+    <p class="mini">Prana Arte &amp; Equilíbrio · v3</p>
   </section>
 </div>
 
@@ -197,7 +197,8 @@ function tambor(vol){
   g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
   o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 0.22);
 }
-var PENTA = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25];
+var PENTA  = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25];
+var NOMES  = ["DÓ",  "RÉ",  "MI",  "SOL", "LÁ",  "DÓ",  "RÉ",  "MI"];
 
 /* ---------- canvas ---------- */
 var cv = $("cv"), cx = cv.getContext("2d"), W=0, H=0, DPR=1, LINHA=0;
@@ -235,15 +236,15 @@ function montarNotas(f, comTutorial){
   demoAte = 0;
   if(comTutorial){
     // quatro batidas de demonstração: o jogo acerta sozinho
-    for(var d=0; d<4; d++){ lista.push({t:t, f:PENTA[d], demo:true, hit:false, perdida:false}); t += beat; }
+    for(var d=0; d<4; d++){ lista.push({t:t, f:PENTA[d], nome:NOMES[d], demo:true, hit:false, perdida:false}); t += beat; }
     demoAte = t;
     t += beat;                       // um respiro antes de passar a vez
   }
   for(var c=0;c<f.compassos;c++){
     for(var b=0;b<4;b++){
-      lista.push({t:t, f:PENTA[k%PENTA.length], hit:false, perdida:false}); k++;
+      lista.push({t:t, f:PENTA[k%PENTA.length], nome:NOMES[k%NOMES.length], hit:false, perdida:false}); k++;
       if(f.colcheias && (b===1 || b===3)){
-        lista.push({t:t+beat/2, f:PENTA[(k+2)%PENTA.length], hit:false, perdida:false});
+        lista.push({t:t+beat/2, f:PENTA[(k+2)%PENTA.length], nome:NOMES[(k+2)%NOMES.length], hit:false, perdida:false});
       }
       t += beat;
     }
@@ -279,8 +280,8 @@ function acertar(n, dev){
   n.hit = true; desvios.push(dev);
   combo++; if(combo > comboMax) comboMax = combo;
   var ganho;
-  if(Math.abs(dev) <= 75){ perfeitos++; ganho = 100; julgar("no tempo", "#25E8C8"); }
-  else if(Math.abs(dev) <= 150){ ganho = 60; julgar("bom", "#FFD166"); }
+  if(Math.abs(dev) <= 75){ perfeitos++; ganho = 100; julgar(n.nome + " no tempo", "#25E8C8"); }
+  else if(Math.abs(dev) <= 150){ ganho = 60; julgar(n.nome, "#FFD166"); }
   else { ganho = 30; julgar(dev > 0 ? "cedo" : "tarde", "rgba(255,255,255,.6)"); }
   pontos += ganho + Math.min(combo,20)*5;
   $("pontos").textContent = pontos;
@@ -355,7 +356,7 @@ function desenhar(a){
   cx.fillStyle = "rgba(255,255,255,.07)"; cx.fillRect(0, LINHA-26, W, 52);
   cx.strokeStyle = "rgba(255,255,255,.5)"; cx.lineWidth = 2;
   cx.beginPath(); cx.moveTo(0,LINHA); cx.lineTo(W,LINHA); cx.stroke();
-  var R0 = Math.max(15, Math.min(26, W*0.055));
+  var R0 = Math.max(19, Math.min(30, W*0.066));
   cx.strokeStyle = "rgba(255,255,255,.28)"; cx.lineWidth = 2;
   cx.beginPath(); cx.arc(W/2, LINHA, R0+9, 0, Math.PI*2); cx.stroke();
 
@@ -372,6 +373,13 @@ function desenhar(a){
     else { grad.addColorStop(0,"#25E8C8"); grad.addColorStop(1,"#FF4D8D"); }
     cx.fillStyle = grad;
     cx.beginPath(); cx.arc(W/2, y, R0*(0.72+perto*0.28), 0, Math.PI*2); cx.fill();
+    // o nome da nota, dentro da bolinha
+    var raio = R0*(0.72+perto*0.28);
+    cx.fillStyle = "#08070F";
+    cx.font = "800 " + Math.round(raio*0.78) + "px system-ui,-apple-system,sans-serif";
+    cx.textAlign = "center"; cx.textBaseline = "middle";
+    cx.fillText(n.nome, W/2, y + raio*0.04);
+
     if(!n.perdida && perto > 0.78){
       cx.globalAlpha = (perto-0.78)*3;
       cx.strokeStyle = "rgba(255,255,255,.9)"; cx.lineWidth = 2;
