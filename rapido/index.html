@@ -1,3 +1,20 @@
+/* ---------- fim de um trecho de ritmo ---------- */
+var somaDesvios = 0, nDesvios = 0;
+function fimFase(){
+  rodando = false; cancelAnimationFrame(raf); ordem(null);
+  for(var i=0;i<desvios.length;i++){ somaDesvios += Math.abs(desvios[i]); nDesvios++; }
+  var prop = totalNotas ? perfeitos/totalNotas : 0;
+  var est = prop >= 0.7 ? 3 : (prop >= 0.45 ? 2 : (prop >= 0.2 ? 1 : 0));
+  var medio = nDesvios ? Math.round(somaDesvios/nDesvios) : null;
+  fecharModulo(est,
+    comboMax >= 8 ? "o navio andou" : (comboMax >= 4 ? "quase lá" : "o mar discorda"),
+    [["Seguidas sem errar", comboMax],
+     ["No tempo exato", perfeitos + " de " + totalNotas],
+     ["Seu desvio médio", medio === null ? "—" : medio + " ms"]],
+    FASES[iFase].carta
+  );
+}
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -114,6 +131,30 @@
   .ops button:active{transform:scale(.97)}
   .ops button.certo{background:rgba(37,232,200,.22);border-color:var(--ciano)}
   .ops button.errado{background:rgba(255,77,141,.18);border-color:var(--magenta)}
+
+  .ilhas{width:100%;display:flex;flex-direction:column;gap:8px}
+  .ilha{appearance:none;text-align:left;border:1px solid rgba(255,255,255,.12);border-radius:12px;
+    background:rgba(255,255,255,.045);color:var(--branco);padding:14px 16px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    transition:transform .1s ease,border-color .15s ease,background .15s ease}
+  .ilha:active{transform:scale(.99)}
+  .ilha .nm{font-size:16px;font-weight:700;line-height:1.2}
+  .ilha .cc{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fraquissimo);margin-top:3px}
+  .ilha .es{font-size:15px;letter-spacing:2px;color:var(--ouro);white-space:nowrap}
+  .ilha.feito{border-color:rgba(37,232,200,.4);background:rgba(37,232,200,.07)}
+  .ilha.travado{opacity:.4;cursor:default}
+  .ilha.travado .es{color:var(--fraquissimo)}
+  .saltos{width:100%;display:flex;gap:10px}
+  .salto{flex:1;appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+    color:var(--branco);border-radius:12px;padding:18px 10px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:12px;transition:transform .1s ease,background .15s ease,border-color .15s ease}
+  .salto:active{transform:scale(.97)}
+  .salto .rot{font-size:11px;letter-spacing:.16em;color:var(--fraquissimo)}
+  .salto .fig{display:block;width:100%;height:56px;position:relative}
+  .salto .fig i{position:absolute;width:14px;height:14px;border-radius:50%;
+    background:linear-gradient(120deg,var(--ciano),var(--magenta));left:50%;transform:translateX(-50%)}
+  .salto.certo{background:rgba(37,232,200,.22);border-color:var(--ciano)}
+  .salto.errado{background:rgba(255,77,141,.18);border-color:var(--magenta)}
 </style>
 </head>
 <body>
@@ -135,9 +176,18 @@
 
   <section class="tela on" id="t-inicio">
     <h1>ÍTACA</h1>
-    <p class="sub">Um navio parou de andar porque a tripulação perdeu o canto.<br>Três minutos para trazer ele de volta.</p>
-    <button class="btn cor" id="b-jogar">Começar</button>
-    <p class="mini">sem cadastro · a última parte pede sua voz</p>
+    <p class="sub">Um navio parou de andar porque a tripulação perdeu o canto.<br>Sete ilhas para trazer ele de volta.</p>
+    <button class="btn cor" id="b-jogar">Abrir o mapa</button>
+    <p class="mini">sem cadastro · seu progresso fica salvo neste aparelho</p>
+  </section>
+
+  <section class="tela" id="t-mapa">
+    <p class="mini">a viagem</p>
+    <h2 class="pergunta" style="font-size:26px">Ítaca</h2>
+    <p class="sub" id="m-resumo">—</p>
+    <div class="ilhas" id="m-ilhas"></div>
+    <button class="btn vazio" id="m-zerar">Recomeçar a viagem do zero</button>
+    <p class="mini">Prana Arte &amp; Equilíbrio</p>
   </section>
 
   <section class="tela" id="t-fase">
@@ -180,6 +230,17 @@
     <button class="btn vazio" id="u-ouvir">Ouvir a nota</button>
   </section>
 
+  <section class="tela" id="t-intervalo">
+    <p class="mini" id="i-passo">1 de 6</p>
+    <h2 class="pergunta">Qual salto foi maior?</h2>
+    <div class="saltos">
+      <button class="salto" id="i-a"><span class="rot">PRIMEIRO</span><span class="fig" id="i-figa"></span></button>
+      <button class="salto" id="i-b"><span class="rot">SEGUNDO</span><span class="fig" id="i-figb"></span></button>
+    </div>
+    <button class="btn vazio" id="i-ouvir">Ouvir os dois de novo</button>
+    <p class="mini" id="i-dica">o salto é a distância entre as duas notas</p>
+  </section>
+
   <section class="tela" id="t-voz">
     <p class="mini" id="v-passo">nota 1 de 3</p>
     <div class="nota-alvo" id="v-nome">DÓ</div>
@@ -204,8 +265,8 @@
     <div class="carta"><p class="t" id="g-t">—</p><p id="g-p"></p></div>
     <a class="btn cor" id="g-wa" href="#" target="_blank" rel="noopener" style="text-decoration:none;line-height:1.2">Quero aprender de verdade</a>
     <button class="btn vazio" id="g-share">Desafiar alguém</button>
-    <button class="btn vazio" id="g-denovo">Jogar de novo</button>
-    <p class="mini">Prana Arte &amp; Equilíbrio · v5</p>
+    <button class="btn vazio" id="g-denovo">Voltar ao mapa</button>
+    <p class="mini">Prana Arte &amp; Equilíbrio · v6</p>
   </section>
 </div>
 
@@ -463,36 +524,197 @@ $("fala").addEventListener("click", function(){
   if(f) f();
 });
 
-/* ---------- roteiro: a ordem da viagem ---------- */
-var ROTEIRO = [
-  { t:"fala",   quem:"EURÍLOCO · contramestre", txt:"Cinquenta homens, cinquenta remos, um tambor só. Se um braço sai do tempo, o navio anda em círculo." },
-  { t:"ritmo",  fase:0 },
-  { t:"fala",   quem:"A MUSA · filha da Memória", txt:"Eu guardo os nomes. Antes de existir papel, era na minha cabeça que a música morava. Vou te ensinar cinco deles." },
-  { t:"escada" },
-  { t:"fala",   quem:"HERMES · inventor da lira", txt:"Agora que você sabe os nomes, elas vêm mais rápido. Eu avisaria pra você se prender, mas eu minto por profissão." },
-  { t:"ritmo",  fase:1 },
-  { t:"fala",   quem:"CALIPSO · a que esconde", txt:"Olha o meu tear: linhas deitadas, uma sobre a outra. A partitura é a mesma coisa. Sete anos eu tentei isso com um homem. Ele não aprendeu nenhuma." },
-  { t:"pauta" },
-  { t:"fala",   quem:"CIRCE · filha do Sol", txt:"Meu pai é o Sol e eu conheço cada erva desta ilha. Aqueles homens entraram sem bater. Com você é diferente: agora vem a tempestade." },
-  { t:"ritmo",  fase:2 },
-  { t:"fala",   quem:"AS SEREIAS", txt:"Dizem que a gente seduz marinheiro. Que preguiça. O que a gente oferece é tudo o que já aconteceu no mundo — cantado. Canta comigo." },
-  { t:"voz" }
-];
-var iEtapa = -1;
+/* ---------- fim de um trecho de ritmo ---------- */
+var somaDesvios = 0, nDesvios = 0;
+function fimFase(){
+  rodando = false; cancelAnimationFrame(raf); ordem(null);
+  for(var i=0;i<desvios.length;i++){ somaDesvios += Math.abs(desvios[i]); nDesvios++; }
+  var prop = totalNotas ? perfeitos/totalNotas : 0;
+  var est = prop >= 0.7 ? 3 : (prop >= 0.45 ? 2 : (prop >= 0.2 ? 1 : 0));
+  var medio = nDesvios ? Math.round(somaDesvios/nDesvios) : null;
+  fecharModulo(est,
+    comboMax >= 8 ? "o navio andou" : (comboMax >= 4 ? "quase lá" : "o mar discorda"),
+    [["Seguidas sem errar", comboMax],
+     ["No tempo exato", perfeitos + " de " + totalNotas],
+     ["Seu desvio médio", medio === null ? "—" : medio + " ms"]],
+    FASES[iFase].carta
+  );
+}
 
-function seguir(){
-  iEtapa++;
-  if(iEtapa >= ROTEIRO.length){ final(); return; }
-  var e = ROTEIRO[iEtapa];
-  if(e.t === "fala")   { falar(e.quem, e.txt, seguir); }
-  else if(e.t === "ritmo")  { comecarFase(e.fase); }
-  else if(e.t === "escada") { comecarEscada(); }
-  else if(e.t === "pauta")  { comecarPauta(); }
-  else if(e.t === "voz")    { irParaVoz(); }
+/* ================= MÓDULOS, MAPA E PROGRESSO ================= */
+var MODULOS = [
+  { id:"pulso", nome:"A remada", conceito:"Ritmo · o pulso", tipo:"ritmo", fase:0,
+    quem:"EURÍLOCO · contramestre",
+    fala:"Cinquenta homens, cinquenta remos, um tambor só. Se um braço sai do tempo, o navio anda em círculo." },
+  { id:"nomes", nome:"Os nomes", conceito:"Melodia · as alturas", tipo:"escada",
+    quem:"A MUSA · filha da Memória",
+    fala:"Eu guardo os nomes. Antes de existir papel, era na minha cabeça que a música morava. Vou te ensinar cinco deles." },
+  { id:"salto", nome:"A distância", conceito:"Intervalos", tipo:"intervalo",
+    quem:"TIRÉSIAS · o que enxerga sem ver",
+    fala:"Eu não vejo nada. Por isso eu ouço distâncias. Entre duas notas sempre existe um vão, e o tamanho desse vão é o que faz a música dizer alguma coisa." },
+  { id:"mar", nome:"Mar aberto", conceito:"Ritmo · subdivisão", tipo:"ritmo", fase:1,
+    quem:"HERMES · inventor da lira",
+    fala:"Agora que você sabe os nomes, elas vêm mais rápido. E vêm no meio do tempo também. Eu avisaria pra você se segurar, mas eu minto por profissão." },
+  { id:"tear", nome:"O tear", conceito:"Leitura de pauta", tipo:"pauta",
+    quem:"CALIPSO · a que esconde",
+    fala:"Olha o meu tear: linhas deitadas, uma sobre a outra. A partitura é a mesma coisa. Sete anos eu tentei isso com um homem, e ele não aprendeu nenhuma." },
+  { id:"tempestade", nome:"A tempestade", conceito:"Ritmo · velocidade", tipo:"ritmo", fase:2,
+    quem:"CIRCE · filha do Sol",
+    fala:"Meu pai é o Sol e eu conheço cada erva desta ilha. Aqueles homens entraram sem bater na porta. Com você é diferente, mas o mar não vai facilitar." },
+  { id:"voz", nome:"As Sereias", conceito:"Afinação · a voz", tipo:"voz",
+    quem:"AS SEREIAS",
+    fala:"Dizem que a gente seduz marinheiro. Que preguiça. O que a gente oferece é tudo o que já aconteceu no mundo, cantado. Canta comigo." }
+];
+
+var CHAVE = "itaca.progresso.v1";
+var progresso = {};
+function carregarProgresso(){
+  try{ progresso = JSON.parse(localStorage.getItem(CHAVE) || "{}") || {}; }
+  catch(e){ progresso = {}; }
+}
+function salvarProgresso(){
+  try{ localStorage.setItem(CHAVE, JSON.stringify(progresso)); }catch(e){}
+}
+function registrar(id, estrelas, pts){
+  var a = progresso[id];
+  if(!a || estrelas > a.estrelas){ progresso[id] = { estrelas:estrelas, pontos:pts }; }
+  salvarProgresso();
+}
+function liberado(i){
+  if(i === 0) return true;
+  return !!progresso[MODULOS[i-1].id];
+}
+function estrelasDe(id){
+  var a = progresso[id];
+  if(!a) return "· · ·";
+  return ["· · ·","★ · ·","★ ★ ·","★ ★ ★"][a.estrelas] || "· · ·";
+}
+function totalEstrelas(){
+  var t = 0;
+  for(var i=0;i<MODULOS.length;i++){ var a = progresso[MODULOS[i].id]; if(a) t += a.estrelas; }
+  return t;
+}
+
+var iModulo = 0;
+function abrirMapa(){
+  carregarProgresso();
+  var h = "", feitos = 0;
+  for(var i=0;i<MODULOS.length;i++){
+    var m = MODULOS[i], lib = liberado(i), feito = !!progresso[m.id];
+    if(feito) feitos++;
+    h += '<button class="ilha' + (feito ? " feito" : "") + (lib ? "" : " travado") + '" data-i="' + i + '"' +
+         (lib ? "" : " disabled") + '>' +
+         '<span><span class="nm">' + m.nome + '</span><span class="cc">' + m.conceito + '</span></span>' +
+         '<span class="es">' + (lib ? estrelasDe(m.id) : "&#128274;") + '</span></button>';
+  }
+  $("m-ilhas").innerHTML = h;
+  $("m-resumo").textContent = feitos + " de " + MODULOS.length + " ilhas · " +
+    totalEstrelas() + " de " + (MODULOS.length*3) + " estrelas";
+  var bs = $("m-ilhas").querySelectorAll(".ilha");
+  for(var k=0;k<bs.length;k++){
+    bs[k].addEventListener("click", function(){
+      if(this.disabled) return;
+      entrarModulo(parseInt(this.getAttribute("data-i"),10));
+    });
+  }
+  tela("t-mapa");
+}
+function entrarModulo(i){
+  iModulo = i;
+  var m = MODULOS[i];
+  pontos = 0; comboMax = 0; somaDesvios = 0; nDesvios = 0;
+  ac();
+  falar(m.quem, m.fala, function(){
+    if(m.tipo === "ritmo")          comecarFase(m.fase);
+    else if(m.tipo === "escada")    comecarEscada();
+    else if(m.tipo === "pauta")     comecarPauta();
+    else if(m.tipo === "intervalo") comecarIntervalo();
+    else if(m.tipo === "voz")       irParaVoz();
+  });
+}
+function fecharModulo(estrelas, titulo, linhas, carta){
+  registrar(MODULOS[iModulo].id, estrelas, pontos);
+  var proximo = iModulo + 1;
+  mostrarPlacar(titulo, linhas, carta, function(){
+    if(proximo < MODULOS.length && !progresso[MODULOS[proximo].id]) entrarModulo(proximo);
+    else abrirMapa();
+  }, proximo < MODULOS.length ? "Seguir para " + MODULOS[proximo].nome : "Ver o mapa");
+}
+
+/* ================= TIRÉSIAS · intervalos ================= */
+function hz(semitons){ return 261.63 * Math.pow(2, semitons/12); }
+var iRodada=0, iAcertos=0, iTravado=false, iParA=null, iParB=null, iMaior=0;
+var I_TOTAL = 6;
+
+function comecarIntervalo(){ iRodada=0; iAcertos=0; tela("t-intervalo"); proximoIntervalo(); }
+function sortearPar(tamanho){
+  var base = Math.floor(Math.random()*5);
+  return { a:base, b:base + tamanho };
+}
+function pintarFig(elId, par){
+  var alt = 56, faixa = 16;
+  var y1 = alt - 14 - (par.a/faixa)*(alt-18);
+  var y2 = alt - 14 - (par.b/faixa)*(alt-18);
+  $(elId).innerHTML = '<i style="top:' + Math.round(y1) + 'px"></i><i style="top:' + Math.round(y2) + 'px"></i>';
+}
+function agendar(freq, t, dur){
+  var c = ac(), o = c.createOscillator(), g = c.createGain();
+  o.type = "sine"; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.22, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
+}
+function tocarPar(par, quando){
+  var c = ac(), t = c.currentTime + quando;
+  agendar(hz(par.a), t, 0.42);
+  agendar(hz(par.b), t + 0.52, 0.42);
+}
+function tocarOsDois(){ tocarPar(iParA, 0.25); tocarPar(iParB, 1.7); }
+function proximoIntervalo(){
+  if(iRodada >= I_TOTAL){ fimIntervalo(); return; }
+  iTravado = false;
+  $("i-a").className = "salto"; $("i-b").className = "salto";
+  $("i-passo").textContent = (iRodada+1) + " de " + I_TOTAL;
+  $("i-dica").textContent = iRodada === 0
+    ? "duas notas por vez: ouça o tamanho do vão entre elas"
+    : "o salto é a distância entre as duas notas";
+  var difs = [[2,7],[3,8],[2,5],[4,7],[3,5],[4,6]];
+  var d = difs[iRodada % difs.length];
+  if(Math.random() < 0.5){ iParA = sortearPar(d[1]); iParB = sortearPar(d[0]); iMaior = 0; }
+  else { iParA = sortearPar(d[0]); iParB = sortearPar(d[1]); iMaior = 1; }
+  pintarFig("i-figa", iParA); pintarFig("i-figb", iParB);
+  setTimeout(tocarOsDois, 320);
+}
+function responderIntervalo(qual){
+  if(iTravado) return;
+  iTravado = true;
+  (iMaior === 0 ? $("i-a") : $("i-b")).classList.add("certo");
+  if(qual === iMaior){ iAcertos++; $("i-dica").textContent = "Isso. Esse vão era maior."; }
+  else {
+    (qual === 0 ? $("i-a") : $("i-b")).classList.add("errado");
+    $("i-dica").textContent = "Era o outro. Escute de novo o tamanho do vão.";
+    tambor(0.12);
+  }
+  iRodada++;
+  setTimeout(proximoIntervalo, 1500);
+}
+$("i-a").addEventListener("click", function(){ responderIntervalo(0); });
+$("i-b").addEventListener("click", function(){ responderIntervalo(1); });
+$("i-ouvir").addEventListener("click", function(){ if(!iTravado) tocarOsDois(); });
+
+function fimIntervalo(){
+  pontos += iAcertos * 130;
+  var est = iAcertos >= 6 ? 3 : (iAcertos >= 4 ? 2 : (iAcertos >= 2 ? 1 : 0));
+  fecharModulo(est,
+    iAcertos >= 5 ? "seu ouvido mede distância" : (iAcertos >= 3 ? "começando a medir" : "os vãos ainda se parecem"),
+    [["Saltos que você mediu", iAcertos + " de " + I_TOTAL]],
+    { t:"Carta · o vão", p:"Duas notas iguais não dizem nada. É a distância entre elas que faz a música falar, e essa distância tem nome: intervalo. Quem reconhece intervalo entra em qualquer música sem partitura, só de ouvido." }
+  );
 }
 
 var depoisDoPlacar = null;
-function mostrarPlacar(titulo, linhas, carta, depois){
+function mostrarPlacar(titulo, linhas, carta, depois, textoBotao){
   $("p-titulo").textContent = titulo;
   $("p-pontos").textContent = pontos;
   var h = "";
@@ -502,7 +724,7 @@ function mostrarPlacar(titulo, linhas, carta, depois){
   $("p-linhas").innerHTML = h;
   $("p-carta-t").textContent = carta.t;
   $("p-carta-p").textContent = carta.p;
-  $("b-seguir").textContent = (iEtapa >= ROTEIRO.length - 2) ? "Chegar em Ítaca" : "Seguir viagem";
+  $("b-seguir").textContent = textoBotao || "Seguir viagem";
   depoisDoPlacar = depois;
   tela("t-fase");
 }
@@ -511,18 +733,6 @@ $("b-seguir").addEventListener("click", function(){
   if(f) f();
 });
 
-/* ---------- fim de um trecho de ritmo ---------- */
-var somaDesvios = 0, nDesvios = 0;
-function fimFase(){
-  rodando = false; cancelAnimationFrame(raf); ordem(null);
-  for(var i=0;i<desvios.length;i++){ somaDesvios += Math.abs(desvios[i]); nDesvios++; }
-  var f = FASES[iFase];
-  mostrarPlacar(
-    comboMax >= 8 ? "o navio andou" : (comboMax >= 4 ? "quase lá" : "o mar discorda"),
-    [["Seguidas sem errar", comboMax], ["No tempo exato", perfeitos + " de " + totalNotas]],
-    f.carta, seguir
-  );
-}
 
 /* ================= A MUSA · os nomes das notas ================= */
 var ESCADA = [
@@ -574,11 +784,10 @@ function responderEscada(i){
 function fimEscada(){
   pontos += eAcertos * 120;
   resumoMusa = eAcertos + " de " + E_TOTAL;
-  mostrarPlacar(
+  fecharModulo(eAcertos >= 6 ? 3 : (eAcertos >= 4 ? 2 : (eAcertos >= 2 ? 1 : 0)),
     eAcertos >= 5 ? "seu ouvido já separa as notas" : (eAcertos >= 3 ? "está começando a separar" : "as notas ainda se confundem"),
     [["Nomes que você acertou", eAcertos + " de " + E_TOTAL]],
-    { t:"Carta · os nomes", p:"Esses nomes têm mil anos. Guido tirou cada um da primeira sílaba de um verso de uma canção que todo mundo sabia de cor — foi o jeito que ele achou de fazer as pessoas guardarem os sons na cabeça." },
-    seguir
+    { t:"Carta · os nomes", p:"Esses nomes têm mil anos. Guido tirou cada um da primeira sílaba de um verso de uma canção que todo mundo sabia de cor — foi o jeito que ele achou de fazer as pessoas guardarem os sons na cabeça." }
   );
 }
 
@@ -677,11 +886,10 @@ function responderPauta(i){
 function fimPauta(){
   pontos += uAcertos * 140;
   resumoCalipso = uAcertos + " de " + U_TOTAL;
-  mostrarPlacar(
+  fecharModulo(uAcertos >= 5 ? 3 : (uAcertos >= 3 ? 2 : (uAcertos >= 1 ? 1 : 0)),
     uAcertos >= 4 ? "você escreveu música" : (uAcertos >= 2 ? "está começando a escrever" : "o tear ainda é estranho"),
     [["Notas colocadas no lugar", uAcertos + " de " + U_TOTAL]],
-    { t:"Carta · o tear", p:"A pauta é um tecido: linhas deitadas, uma sobre a outra. Cada degrau — linha, espaço, linha — é uma nota. Para cima é mais agudo; da esquerda para a direita é o tempo passando. Tudo que está escrito em qualquer papel de música do mundo funciona assim." },
-    seguir
+    { t:"Carta · o tear", p:"A pauta é um tecido: linhas deitadas, uma sobre a outra. Cada degrau — linha, espaço, linha — é uma nota. Para cima é mais agudo; da esquerda para a direita é o tempo passando. Tudo que está escrito em qualquer papel de música do mundo funciona assim." }
   );
 }
 $("e-repetir").addEventListener("click", function(){ bip(ESCADA[eAlvo].f, 1.0, 0.24, "sine"); });
@@ -790,9 +998,12 @@ $("v-pular").addEventListener("click", function(){
 });
 function fecharVoz(){
   pararVoz();
-  var s=0; for(var i=0;i<vMedidos.length;i++){ s += vMedidos[i]; }
-  vozErro = vMedidos.length ? Math.round(s/vMedidos.length) : null;
+  var soma=0; for(var i=0;i<vMedidos.length;i++){ soma += vMedidos[i]; }
+  vozErro = vMedidos.length ? Math.round(soma/vMedidos.length) : null;
   vozAcertos = vMedidos.length;
+  pontos += vozAcertos * 150;
+  var est = (vozAcertos === 3 && vozErro <= 25) ? 3 : (vozAcertos >= 2 ? 2 : (vozAcertos >= 1 ? 1 : 0));
+  registrar(MODULOS[iModulo].id, est, pontos);
   final();
 }
 var vozErro = null, vozAcertos = 0;
@@ -836,15 +1047,9 @@ function final(){
 }
 
 /* ---------- ligações ---------- */
-function zarpar(){
-  ac();
-  somaDesvios = 0; nDesvios = 0; comboMax = 0; pontos = 0;
-  vozErro = null; vozAcertos = 0; vErro = null;
-  resumoMusa = null; resumoCalipso = null;
-  iEtapa = -1; seguir();
-}
+function zarpar(){ ac(); abrirMapa(); }
 $("b-jogar").addEventListener("click", zarpar);
-$("g-denovo").addEventListener("click", zarpar);
+$("g-denovo").addEventListener("click", abrirMapa);
 
 document.addEventListener("pointerdown", function(e){
   if(!rodando) return;
@@ -855,6 +1060,12 @@ document.addEventListener("keydown", function(e){
   if((e.code === "Space" || e.code === "Enter") && rodando){ e.preventDefault(); tocar(); }
 });
 
+$("m-zerar").addEventListener("click", function(){
+  if(!window.confirm("Isso apaga suas estrelas e recomeça a viagem do zero. Tem certeza?")) return;
+  progresso = {}; salvarProgresso(); abrirMapa();
+});
+
+carregarProgresso();
 medir();
 })();
 </script>
