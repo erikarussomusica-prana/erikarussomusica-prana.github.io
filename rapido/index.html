@@ -158,18 +158,25 @@
 
   <section class="tela" id="t-pauta">
     <p class="mini" id="u-passo">1 de 5</p>
-    <h2 class="pergunta">Que nota está escrita?</h2>
+    <h2 class="pergunta">Coloque o <span id="u-pedido">SOL</span> na pauta</h2>
     <div class="pauta-cx">
-      <svg viewBox="0 0 260 150" class="pauta">
-        <g stroke="rgba(255,255,255,.32)" stroke-width="1.2">
-          <path d="M18 45h224M18 63h224M18 81h224M18 99h224M18 117h224"/>
+      <svg viewBox="0 0 260 168" class="pauta" id="u-svg">
+        <g stroke="rgba(255,255,255,.30)" stroke-width="1.2">
+          <path d="M20 48h220M20 66h220M20 84h220M20 102h220M20 120h220"/>
         </g>
-        <path id="u-supl" d="M112 135h36" stroke="rgba(255,255,255,.32)" stroke-width="1.2" opacity="0"/>
-        <ellipse id="u-nota" cx="130" cy="117" rx="12" ry="8.6" transform="rotate(-16 130 117)" fill="#25E8C8"/>
-        <path id="u-haste" d="M141 113v-44" stroke="#25E8C8" stroke-width="2.4"/>
+        <path id="u-supl" d="M112 138h40" stroke="rgba(255,255,255,.30)" stroke-width="1.2" opacity="0"/>
+        <g id="u-fantasma" opacity="0">
+          <ellipse id="u-fnota" cx="132" cy="120" rx="12" ry="8.6" transform="rotate(-16 132 120)"
+                   fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1.6"/>
+        </g>
+        <g id="u-posta" opacity="0">
+          <ellipse id="u-nota" cx="132" cy="120" rx="12" ry="8.6" transform="rotate(-16 132 120)" fill="#25E8C8"/>
+          <path id="u-haste" d="M143 116v-42" stroke="#25E8C8" stroke-width="2.4"/>
+        </g>
+        <rect id="u-toque" x="0" y="0" width="260" height="168" fill="transparent" style="cursor:pointer"/>
       </svg>
     </div>
-    <div class="ops" id="u-ops"></div>
+    <p class="mini" id="u-dica">toque na linha ou no espaço onde ela mora</p>
     <button class="btn vazio" id="u-ouvir">Ouvir a nota</button>
   </section>
 
@@ -198,7 +205,7 @@
     <a class="btn cor" id="g-wa" href="#" target="_blank" rel="noopener" style="text-decoration:none;line-height:1.2">Quero aprender de verdade</a>
     <button class="btn vazio" id="g-share">Desafiar alguém</button>
     <button class="btn vazio" id="g-denovo">Jogar de novo</button>
-    <p class="mini">Prana Arte &amp; Equilíbrio · v4</p>
+    <p class="mini">Prana Arte &amp; Equilíbrio · v5</p>
   </section>
 </div>
 
@@ -273,7 +280,15 @@ var QUEDA = 1600;
 var notas=[], t0=0, rodando=false, raf=0, fimEm=0, iFase=0, demoAte=0;
 var pontos=0, combo=0, comboMax=0, perfeitos=0, totalNotas=0, desvios=[], pulsos=[];
 
-function agora(){ return performance.now() - t0; }
+var LATENCIA = 0;
+function medirLatencia(){
+  var c = ac();
+  var l = (typeof c.outputLatency === "number" && c.outputLatency) ? c.outputLatency : (c.baseLatency || 0);
+  LATENCIA = Math.min(0.35, l) * 1000;      // ms; teto de seguranca
+}
+/* tempo do jogo medido pelo MESMO relogio que toca o som,
+   descontando o atraso de saida do aparelho */
+function agora(){ return (ac().currentTime - t0)*1000 - LATENCIA; }
 
 function montarNotas(f, comTutorial){
   var beat = 60000/f.bpm, lista=[], t = comTutorial ? 900 : 1500, k=0;
@@ -308,7 +323,8 @@ function comecarFase(i){
   $("fase").textContent = f.nome;
   $("combo").innerHTML = "SEGUIDAS<b>0</b>";
   tela(null);
-  rodando = true; t0 = performance.now();
+  medirLatencia();
+  rodando = true; t0 = ac().currentTime;
   fimEm = notas[notas.length-1].t + 1500;
   if(i === 0) ordem("ESCUTE", "o jogo bate sozinho quatro vezes");
   else ordem(null);
@@ -324,14 +340,14 @@ function acertar(n, dev){
   n.hit = true; desvios.push(dev);
   combo++; if(combo > comboMax) comboMax = combo;
   var ganho;
-  if(Math.abs(dev) <= 75){ perfeitos++; ganho = 100; julgar(n.nome + " no tempo", "#25E8C8"); }
-  else if(Math.abs(dev) <= 150){ ganho = 60; julgar(n.nome, "#FFD166"); }
+  if(Math.abs(dev) <= 60){ perfeitos++; ganho = 100; julgar(n.nome + " no tempo", "#25E8C8"); }
+  else if(Math.abs(dev) <= 120){ ganho = 60; julgar(n.nome, "#FFD166"); }
   else { ganho = 30; julgar(dev > 0 ? "cedo" : "tarde", "rgba(255,255,255,.6)"); }
   pontos += ganho + Math.min(combo,20)*5;
   $("pontos").textContent = pontos;
   $("combo").innerHTML = "SEGUIDAS<b>" + combo + "</b>";
   bip(n.f, 0.42, 0.20, "triangle"); tambor(0.18);
-  pulsos.push({t:performance.now(), forte:Math.abs(dev) <= 75});
+  pulsos.push({t:agora(), forte:Math.abs(dev) <= 60});
 }
 
 function tocar(){
@@ -345,7 +361,7 @@ function tocar(){
     var d = Math.abs(n.t - a);
     if(d < err){ err = d; melhor = i; }
   }
-  if(melhor < 0 || err > 260){
+  if(melhor < 0 || err > 200){
     combo = 0; $("combo").innerHTML = "SEGUIDAS<b>0</b>";
     julgar("fora", "rgba(255,255,255,.4)"); tambor(0.10); return;
   }
@@ -361,10 +377,10 @@ function laco(){
     if(n.hit || n.perdida) continue;
     if(n.demo && a >= n.t){                     // demonstração: acerta sozinha
       n.hit = true; bip(n.f, 0.42, 0.20, "triangle"); tambor(0.20);
-      pulsos.push({t:performance.now(), forte:true});
+      pulsos.push({t:agora(), forte:true});
       continue;
     }
-    if(!n.demo && a - n.t > 260){
+    if(!n.demo && a - n.t > 200){
       n.perdida = true; combo = 0; $("combo").innerHTML = "SEGUIDAS<b>0</b>";
     }
   }
@@ -388,7 +404,7 @@ function desenhar(a){
   cx.fillStyle = g; cx.fillRect(0,0,W,H);
 
   for(var p=pulsos.length-1;p>=0;p--){
-    var id = (performance.now()-pulsos[p].t)/480;
+    var id = (agora()-pulsos[p].t)/480;
     if(id >= 1){ pulsos.splice(p,1); continue; }
     var r = 60 + id*(pulsos[p].forte?320:190), al = (1-id)*(pulsos[p].forte?0.30:0.16);
     var rg = cx.createRadialGradient(W/2,LINHA,0,W/2,LINHA,r);
@@ -408,7 +424,7 @@ function desenhar(a){
     var n = notas[i];
     if(n.hit) continue;
     var falta = n.t - a;
-    if(falta > QUEDA || falta < -280) continue;
+    if(falta > QUEDA || falta < -220) continue;
     var y = LINHA - (falta/QUEDA)*LINHA;
     var perto = 1 - Math.min(1, Math.abs(falta)/QUEDA);
     cx.globalAlpha = n.perdida ? 0.16 : (0.35 + perto*0.65);
@@ -566,84 +582,110 @@ function fimEscada(){
   );
 }
 
-/* ================= CALIPSO · a pauta ================= */
-/* clave de sol: 1ª linha de baixo é MI, cada degrau sobe uma nota */
+/* ================= CALIPSO · escrever na pauta ================= */
+/* clave de sol; 18px por linha, 9px por degrau (linha -> espaco) */
 var PAUTA = [
-  {y:135, sup:true,  n:"DÓ",  f:261.63},
-  {y:126, sup:false, n:"RÉ",  f:293.66},
-  {y:117, sup:false, n:"MI",  f:329.63},
-  {y:108, sup:false, n:"FÁ",  f:349.23},
-  {y:99,  sup:false, n:"SOL", f:392.00},
-  {y:90,  sup:false, n:"LÁ",  f:440.00},
-  {y:81,  sup:false, n:"SI",  f:493.88},
-  {y:72,  sup:false, n:"DÓ",  f:523.25}
+  {y:138, sup:true,  n:"DÓ",  f:261.63},
+  {y:129, sup:false, n:"RÉ",  f:293.66},
+  {y:120, sup:false, n:"MI",  f:329.63},
+  {y:111, sup:false, n:"FÁ",  f:349.23},
+  {y:102, sup:false, n:"SOL", f:392.00},
+  {y:93,  sup:false, n:"LÁ",  f:440.00},
+  {y:84,  sup:false, n:"SI",  f:493.88},
+  {y:75,  sup:false, n:"DÓ",  f:523.25},
+  {y:66,  sup:false, n:"RÉ",  f:587.33},
+  {y:57,  sup:false, n:"MI",  f:659.25}
 ];
 var uRodada=0, uAlvo=0, uAcertos=0, uTravado=false;
 var U_TOTAL = 5;
 
-function comecarPauta(){ uRodada = 0; uAcertos = 0; tela("t-pauta"); proximaPauta(); }
+function desenharNota(grupo, idNota, idHaste, y){
+  var e = $(idNota);
+  e.setAttribute("cy", y);
+  e.setAttribute("transform", "rotate(-16 132 " + y + ")");
+  if(idHaste){
+    if(y > 93) $(idHaste).setAttribute("d", "M143 " + (y-4) + "v-42");
+    else       $(idHaste).setAttribute("d", "M121 " + (y+4) + "v42");
+  }
+  $(grupo).setAttribute("opacity", "1");
+}
+function comecarPauta(){ uRodada=0; uAcertos=0; tela("t-pauta"); proximaPauta(); }
 function proximaPauta(){
   if(uRodada >= U_TOTAL){ fimPauta(); return; }
   uTravado = false;
   $("u-passo").textContent = (uRodada+1) + " de " + U_TOTAL;
+  $("u-posta").setAttribute("opacity","0");
+  $("u-fantasma").setAttribute("opacity","0");
+  $("u-supl").setAttribute("opacity","0");
+  $("u-dica").textContent = uRodada === 0
+    ? "cada degrau é uma nota: linha, espaço, linha, espaço"
+    : "toque na linha ou no espaço onde ela mora";
   uAlvo = Math.floor(Math.random()*PAUTA.length);
-  var nt = PAUTA[uAlvo];
-
-  $("u-nota").setAttribute("cy", nt.y);
-  $("u-nota").setAttribute("transform", "rotate(-16 130 " + nt.y + ")");
-  $("u-supl").setAttribute("opacity", nt.sup ? "1" : "0");
-  // haste para cima nas notas graves, para baixo nas agudas
-  if(nt.y > 90){ $("u-haste").setAttribute("d", "M141 " + (nt.y-4) + "v-42"); }
-  else { $("u-haste").setAttribute("d", "M119 " + (nt.y+4) + "v42"); }
-
-  // três opções: a certa e duas vizinhas
-  var ops = [uAlvo], tent = 0;
-  while(ops.length < 3 && tent < 40){
-    var d = uAlvo + (Math.floor(Math.random()*5) - 2);
-    tent++;
-    if(d < 0 || d >= PAUTA.length) continue;
-    var repetido = false;
-    for(var q=0;q<ops.length;q++){ if(PAUTA[ops[q]].n === PAUTA[d].n) repetido = true; }
-    if(!repetido) ops.push(d);
-  }
-  for(var m=ops.length-1;m>0;m--){ var r=Math.floor(Math.random()*(m+1)), tmp=ops[m]; ops[m]=ops[r]; ops[r]=tmp; }
-
-  var h = "";
-  for(var i=0;i<ops.length;i++){ h += '<button data-i="' + ops[i] + '">' + PAUTA[ops[i]].n + '</button>'; }
-  $("u-ops").innerHTML = h;
-  var bs = $("u-ops").querySelectorAll("button");
-  for(var k=0;k<bs.length;k++){
-    bs[k].addEventListener("click", function(){ responderPauta(parseInt(this.getAttribute("data-i"),10), this); });
-  }
+  $("u-pedido").textContent = PAUTA[uAlvo].n;
+  setTimeout(function(){ bip(PAUTA[uAlvo].f, 0.8, 0.2, "sine"); }, 320);
 }
-function responderPauta(i, botao){
+/* converte o toque na tela para o degrau mais proximo da pauta */
+function degrauDoToque(ev){
+  var svg = $("u-svg"), r = svg.getBoundingClientRect();
+  var cy = (ev.clientY - r.top) / r.height * 168;   // viewBox tem 168 de altura
+  var melhor = 0, dist = 1e9;
+  for(var i=0;i<PAUTA.length;i++){
+    var d = Math.abs(PAUTA[i].y - cy);
+    if(d < dist){ dist = d; melhor = i; }
+  }
+  return melhor;
+}
+$("u-toque").addEventListener("pointermove", function(ev){
+  if(uTravado) return;
+  var i = degrauDoToque(ev);
+  desenharNota("u-fantasma", "u-fnota", null, PAUTA[i].y);
+  $("u-fantasma").setAttribute("opacity", "1");
+});
+$("u-toque").addEventListener("pointerleave", function(){ $("u-fantasma").setAttribute("opacity","0"); });
+$("u-toque").addEventListener("pointerdown", function(ev){
+  if(uTravado) return;
+  ev.preventDefault();
+  responderPauta(degrauDoToque(ev));
+});
+function responderPauta(i){
   if(uTravado) return;
   uTravado = true;
-  var certo = (PAUTA[i].n === PAUTA[uAlvo].n);
-  if(certo){ uAcertos++; botao.classList.add("certo"); bip(PAUTA[uAlvo].f, 0.7, 0.2, "sine"); }
-  else {
-    botao.classList.add("errado"); tambor(0.14);
-    var bs = $("u-ops").querySelectorAll("button");
-    for(var k=0;k<bs.length;k++){
-      if(PAUTA[parseInt(bs[k].getAttribute("data-i"),10)].n === PAUTA[uAlvo].n) bs[k].classList.add("certo");
-    }
-    setTimeout(function(){ bip(PAUTA[uAlvo].f, 0.7, 0.2, "sine"); }, 260);
+  $("u-fantasma").setAttribute("opacity","0");
+  var certo = (PAUTA[i].n === PAUTA[uAlvo].n && Math.abs(PAUTA[i].y - PAUTA[uAlvo].y) < 5);
+  desenharNota("u-posta", "u-nota", "u-haste", PAUTA[i].y);
+  $("u-supl").setAttribute("opacity", PAUTA[i].sup ? "1" : "0");
+  $("u-nota").setAttribute("fill", certo ? "#25E8C8" : "#FF4D8D");
+  $("u-haste").setAttribute("stroke", certo ? "#25E8C8" : "#FF4D8D");
+  bip(PAUTA[i].f, 0.7, 0.2, "sine");
+
+  if(certo){
+    uAcertos++;
+    $("u-dica").textContent = "Isso! " + PAUTA[uAlvo].n + " mora aí.";
+  } else {
+    $("u-dica").textContent = "Aí é " + PAUTA[i].n + ". O " + PAUTA[uAlvo].n + " é este:";
+    setTimeout(function(){
+      $("u-nota").setAttribute("fill", "#25E8C8");
+      $("u-haste").setAttribute("stroke", "#25E8C8");
+      desenharNota("u-posta", "u-nota", "u-haste", PAUTA[uAlvo].y);
+      $("u-supl").setAttribute("opacity", PAUTA[uAlvo].sup ? "1" : "0");
+      bip(PAUTA[uAlvo].f, 0.7, 0.2, "sine");
+    }, 900);
   }
   uRodada++;
-  setTimeout(proximaPauta, 1200);
+  setTimeout(proximaPauta, certo ? 1100 : 2100);
 }
 function fimPauta(){
   pontos += uAcertos * 140;
   resumoCalipso = uAcertos + " de " + U_TOTAL;
   mostrarPlacar(
-    uAcertos >= 4 ? "você leu, não adivinhou" : (uAcertos >= 2 ? "está começando a ler" : "o mapa ainda é estranho"),
-    [["Notas que você leu", uAcertos + " de " + U_TOTAL]],
-    { t:"Carta · o tear", p:"A pauta é um tecido: linhas deitadas, uma em cima da outra. Para cima e para baixo é a altura — que nota é. Da esquerda para a direita é o tempo — quando ela chega. Tudo que está escrito em qualquer papel de música do mundo funciona assim." },
+    uAcertos >= 4 ? "você escreveu música" : (uAcertos >= 2 ? "está começando a escrever" : "o tear ainda é estranho"),
+    [["Notas colocadas no lugar", uAcertos + " de " + U_TOTAL]],
+    { t:"Carta · o tear", p:"A pauta é um tecido: linhas deitadas, uma sobre a outra. Cada degrau — linha, espaço, linha — é uma nota. Para cima é mais agudo; da esquerda para a direita é o tempo passando. Tudo que está escrito em qualquer papel de música do mundo funciona assim." },
     seguir
   );
 }
 $("e-repetir").addEventListener("click", function(){ bip(ESCADA[eAlvo].f, 1.0, 0.24, "sine"); });
-$("u-ouvir").addEventListener("click", function(){ bip(PAUTA[uAlvo].f, 0.8, 0.2, "sine"); });
+$("u-ouvir").addEventListener("click", function(){ bip(PAUTA[uAlvo].f, 0.9, 0.22, "sine"); });
 var resumoMusa = null, resumoCalipso = null;
 
 /* ---------- voz ---------- */
