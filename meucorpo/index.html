@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Meu Corpo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-180.png">
+<meta name="theme-color" content="#b8496b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Meu Corpo">
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#fdf7f8;
+    font:16px/1.5 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#3a2f33}
+  @media (prefers-color-scheme:dark){ html,body{background:#171315;color:#f2e9ec} }
+  iframe{border:0;width:100%;height:100dvh;display:block}
+  .escape{
+    position:fixed; right:10px; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5;
+    background:rgba(184,73,107,.92); color:#fff; text-decoration:none;
+    font-size:12px; padding:7px 11px; border-radius:999px; opacity:.55;
+  }
+  .escape:active{opacity:1}
+  noscript{display:block;padding:24px;text-align:center}
+</style>
+</head>
+<body>
+<iframe id="app" title="Meu Corpo"
+  src="https://script.google.com/macros/s/AKfycbxIgjLR-EXps-R4D1nubGTRT1VRBNw8JtxaYzyYioDdkT2O2euI3BNj2DaNmLJM-qYm/exec"
+  allow="clipboard-write; clipboard-read"></iframe>
+
+<!-- se o iframe nao carregar (sessao do Google, cookie de terceiro bloqueado),
+     esta saida abre o app direto, fora do atalho -->
+<a class="escape" id="direto"
+   href="https://script.google.com/macros/s/AKfycbxIgjLR-EXps-R4D1nubGTRT1VRBNw8JtxaYzyYioDdkT2O2euI3BNj2DaNmLJM-qYm/exec">abrir direto</a>
+
+<noscript>Este atalho precisa de JavaScript. Abra o app pelo link direto.</noscript>
+</body>
+</html>
