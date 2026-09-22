@@ -17,12 +17,14 @@
     font:16px/1.5 -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;color:#3a2f33}
   @media (prefers-color-scheme:dark){ html,body{background:#171315;color:#f2e9ec} }
   iframe{border:0;width:100%;height:100dvh;display:block}
+  /* fica no ALTO, nunca em cima da barra de abas do app; some assim que o app carrega */
   .escape{
-    position:fixed; right:10px; bottom:calc(10px + env(safe-area-inset-bottom)); z-index:5;
+    position:fixed; top:calc(8px + env(safe-area-inset-top)); right:8px; z-index:5;
     background:rgba(184,73,107,.92); color:#fff; text-decoration:none;
-    font-size:12px; padding:7px 11px; border-radius:999px; opacity:.55;
+    font-size:11px; padding:5px 9px; border-radius:999px; opacity:.7;
   }
   .escape:active{opacity:1}
+  .escape.sumiu{display:none}
   noscript{display:block;padding:24px;text-align:center}
 </style>
 </head>
@@ -37,5 +39,17 @@
    href="https://script.google.com/macros/s/AKfycbxIgjLR-EXps-R4D1nubGTRT1VRBNw8JtxaYzyYioDdkT2O2euI3BNj2DaNmLJM-qYm/exec">abrir direto</a>
 
 <noscript>Este atalho precisa de JavaScript. Abra o app pelo link direto.</noscript>
+
+<script>
+  // Se o app carregou dentro do atalho, a saida de emergencia nao precisa aparecer.
+  // Se em 12 segundos nada carregou, ela fica visivel para a Erika sair pelo link.
+  (function () {
+    var fuga = document.getElementById('direto');
+    var app = document.getElementById('app');
+    fuga.classList.add('sumiu');
+    var prazo = setTimeout(function () { fuga.classList.remove('sumiu'); }, 12000);
+    app.addEventListener('load', function () { clearTimeout(prazo); });
+  })();
+</script>
 </body>
 </html>
